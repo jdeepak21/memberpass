@@ -1,5 +1,5 @@
 
-name: MemberPass CI
+name: Membrix CI
 
 on:
   push:
@@ -9,12 +9,19 @@ on:
 
 jobs:
   quality-check:
-    name: Code quality and build
+    name: Code quality, security scan and build
     runs-on: ubuntu-latest
 
     steps:
       - name: Get project code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Scan for exposed secrets
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
