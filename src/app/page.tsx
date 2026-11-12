@@ -1,3 +1,4 @@
+
 type IconName =
   | "wallet"
   | "qr"
@@ -127,7 +128,12 @@ const benefits: {
   },
 ];
 
-const steps: { number: string; tag: string; title: string; description: string }[] = [
+const steps: {
+  number: string;
+  tag: string;
+  title: string;
+  description: string;
+}[] = [
   {
     number: "01",
     tag: "IDENTITY CHECK",
@@ -157,19 +163,24 @@ const steps: { number: string; tag: string; title: string; description: string }
 const plans = [
   {
     name: "Basic",
-    description: "Essential digital access for local club exploration and city events.",
+    description:
+      "Essential digital access for local club exploration and city events.",
     price: "₹1,999",
     features: [
       "Access to 50+ local partner venues",
       "Instant QR dynamic verification",
       "Native mobile pass",
     ],
-    unavailable: ["Apple / Google Wallet NFC tap", "Companion guest passes"],
+    unavailable: [
+      "Apple / Google Wallet NFC tap",
+      "Companion guest passes",
+    ],
     action: "Get started with Basic",
   },
   {
     name: "Premium",
-    description: "Complete global passport for frequent travelers and lifestyle enthusiasts.",
+    description:
+      "Complete global passport for frequent travelers and lifestyle enthusiasts.",
     price: "₹5,999",
     features: [
       "500+ global partner clubs & lounges",
@@ -184,7 +195,8 @@ const plans = [
   },
   {
     name: "Enterprise",
-    description: "Sovereign infrastructure for family offices, clubs, and executive teams.",
+    description:
+      "Sovereign infrastructure for family offices, clubs, and executive teams.",
     price: "₹14,999",
     features: [
       "Multi-seat pass management",
@@ -209,9 +221,7 @@ export default function Home() {
         <div className="nav-shell">
           <a className="brand" href="#home" aria-label="Membrix home">
             <span className="brand-mark">M</span>
-            <span>
-              Membrix
-            </span>
+            <span>Membrix</span>
           </a>
 
           <nav className="main-nav" aria-label="Main navigation">
@@ -223,16 +233,24 @@ export default function Home() {
             <a href="#contact">Contact</a>
           </nav>
 
-          <a className="button button-primary nav-cta" href="#pricing">
-            Get started <Icon name="arrow" size={16} />
-          </a>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <a className="button button-glass" href="/login">
+              Login
+            </a>
+            <a className="button button-primary nav-cta" href="/signup">
+              Get started <Icon name="arrow" size={16} />
+            </a>
+          </div>
         </div>
       </header>
 
       <div className="page-shell">
         <section className="hero section-anchor" id="home">
           <div className="hero-copy">
-            <span className="eyebrow"><span className="eyebrow-dot" /> THE FUTURE OF DIGITAL MEMBERSHIP</span>
+            <span className="eyebrow">
+              <span className="eyebrow-dot" /> THE FUTURE OF DIGITAL MEMBERSHIP
+            </span>
+
             <h1>
               One Pass.
               <br />
@@ -240,26 +258,33 @@ export default function Home() {
               <br />
               <span className="gradient-text">Possibilities.</span>
             </h1>
+
             <p className="hero-description">
               Experience a smarter way to access exclusive memberships,
               premium benefits, and unforgettable experiences across the
               world&apos;s most discerning spaces.
             </p>
+
             <div className="hero-actions">
-              <a className="button button-primary" href="#pricing">
+              <a className="button button-primary" href="/signup">
                 Get your pass <Icon name="arrow" size={17} />
               </a>
               <a className="button button-glass" href="#features">
-                <span className="button-icon"><Icon name="spark" size={16} /></span>
+                <span className="button-icon">
+                  <Icon name="spark" size={16} />
+                </span>
                 Explore features
               </a>
             </div>
+
             <div className="social-proof">
               <div className="avatar-stack" aria-hidden="true">
                 <span>AC</span><span>JM</span><span>SK</span><span>+</span>
               </div>
               <div className="rating">
-                <span className="stars" aria-label="5 out of 5 stars">★★★★★</span>
+                <span className="stars" aria-label="5 out of 5 stars">
+                  ★★★★★
+                </span>
                 <span>Trusted by 10,000+ discerning members worldwide</span>
               </div>
             </div>
@@ -269,21 +294,32 @@ export default function Home() {
             <div className="pass-glow" />
             <div className="verification-chip">
               <span className="live-dot" />
-              <span><strong>Instant Verification</strong><small>Validated in 0.12s</small></span>
+              <span>
+                <strong>Instant Verification</strong>
+                <small>Validated in 0.12s</small>
+              </span>
               <Icon name="shield" size={17} />
             </div>
+
             <article className="membership-pass">
               <div className="pass-sheen" />
               <div className="pass-header">
                 <div className="pass-brand">
                   <span className="pass-symbol">M</span>
-                  <span>Membrix<small>SOVEREIGN PROTOCOL</small></span>
+                  <span>
+                    Membrix
+                    <small>SOVEREIGN PROTOCOL</small>
+                  </span>
                 </div>
-                <span className="pass-status"><span className="live-dot" /> PREMIUM</span>
+                <span className="pass-status">
+                  <span className="live-dot" /> PREMIUM
+                </span>
               </div>
+
               <div className="pass-chip"><span /></div>
               <p className="pass-code">ENC-SHA256&nbsp; • &nbsp;#0042-ALPHA</p>
               <div className="pass-divider" />
+
               <div className="pass-holder">
                 <div>
                   <span className="micro-label">CARDHOLDER</span>
@@ -294,15 +330,26 @@ export default function Home() {
                   <Icon name="qr" size={35} />
                 </div>
               </div>
+
               <div className="pass-footer">
-                <span><Icon name="shield" size={14} /> HARDWARE ENCLAVE ACTIVE</span>
+                <span>
+                  <Icon name="shield" size={14} /> HARDWARE ENCLAVE ACTIVE
+                </span>
                 <span>EXP 12/28</span>
               </div>
             </article>
+
             <div className="venue-toast">
-              <span className="venue-icon"><Icon name="check" size={16} /></span>
-              <span><strong>Aura Sky Club</strong><small>VIP Lounge Unlocked</small></span>
-              <span className="toast-check"><Icon name="check" size={15} /></span>
+              <span className="venue-icon">
+                <Icon name="check" size={16} />
+              </span>
+              <span>
+                <strong>Aura Sky Club</strong>
+                <small>VIP Lounge Unlocked</small>
+              </span>
+              <span className="toast-check">
+                <Icon name="check" size={15} />
+              </span>
             </div>
           </div>
         </section>
@@ -326,8 +373,11 @@ export default function Home() {
           <div className="alliance-row">
             <span>ACCREDITED ACROSS GLOBAL LUXURY ALLIANCES</span>
             <div>
-              <b>AURA SKY CLUB</b><b>L&apos;OBSERVATOIRE</b><b>VELOX PRIVÉ</b>
-              <b>NOVA EXPEDITION</b><b>THE FOUNDRY</b>
+              <b>AURA SKY CLUB</b>
+              <b>L&apos;OBSERVATOIRE</b>
+              <b>VELOX PRIVÉ</b>
+              <b>NOVA EXPEDITION</b>
+              <b>THE FOUNDRY</b>
             </div>
           </div>
         </section>
@@ -341,31 +391,43 @@ export default function Home() {
               across private clubs, luxury venues, and digital enclaves.
             </p>
           </div>
+
           <div className="benefit-grid">
             {benefits.map((benefit) => (
               <article className="benefit-card glass-card" key={benefit.title}>
-                <div className="feature-icon"><Icon name={benefit.icon} size={19} /></div>
+                <div className="feature-icon">
+                  <Icon name={benefit.icon} size={19} />
+                </div>
                 <h3>{benefit.title}</h3>
                 <p>{benefit.description}</p>
                 <div className="card-link">
-                  <span>{benefit.detail}</span><Icon name="arrow" size={16} />
+                  <span>{benefit.detail}</span>
+                  <Icon name="arrow" size={16} />
                 </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="content-section steps-section section-anchor" id="how-it-works">
+        <section
+          className="content-section steps-section section-anchor"
+          id="how-it-works"
+        >
           <div className="section-heading">
             <span className="eyebrow">SIMPLE ONBOARDING</span>
             <h2>Your Membership, <span>Made Simple.</span></h2>
-            <p>From invitation to your first venue entry in just a few steps.</p>
+            <p>
+              From invitation to your first venue entry in just a few steps.
+            </p>
           </div>
+
           <div className="steps-grid">
             {steps.map((step, index) => (
               <article className="step-card glass-card" key={step.number}>
                 <div className="step-top">
-                  <span className={`step-number step-${index + 1}`}>{step.number}</span>
+                  <span className={`step-number step-${index + 1}`}>
+                    {step.number}
+                  </span>
                   {index < steps.length - 1 && <span className="step-line" />}
                 </div>
                 <span className="micro-label">{step.tag}</span>
@@ -378,48 +440,85 @@ export default function Home() {
 
         <section className="reserve-banner section-anchor" id="membership">
           <div className="reserve-copy">
-            <span className="tier-badge"><Icon name="star" size={13} /> SOVEREIGN PRIVILEGE TIER</span>
+            <span className="tier-badge">
+              <Icon name="star" size={13} /> SOVEREIGN PRIVILEGE TIER
+            </span>
+
             <h2>The Black &amp; Gold<br />Reserve Pass</h2>
+
             <p>
               Engineered for members who expect exceptional access and
               thoughtful, personal service wherever life takes them.
             </p>
+
             <div className="reserve-perks">
               <span><Icon name="check" size={15} /> 24/7 dedicated concierge</span>
               <span><Icon name="check" size={15} /> Unlimited global lounges</span>
               <span><Icon name="check" size={15} /> Companion guest privileges</span>
               <span><Icon name="check" size={15} /> Priority dining reservations</span>
             </div>
+
             <div className="reserve-actions">
-              <a className="button button-gold" href="#pricing">Explore premium <Icon name="arrow" size={16} /></a>
-              <span><Icon name="shield" size={15} /> Subject to membership review</span>
+              <a className="button button-gold" href="/signup">
+                Explore premium <Icon name="arrow" size={16} />
+              </a>
+              <span>
+                <Icon name="shield" size={15} /> Subject to membership review
+              </span>
             </div>
           </div>
+
           <div className="reserve-card-wrap">
             <article className="reserve-card">
               <div className="reserve-card-top">
-                <span className="reserve-emblem"><Icon name="shield" size={23} /></span>
-                <span>RESERVE BLACK<small>SOVEREIGN MEMBER</small></span>
+                <span className="reserve-emblem">
+                  <Icon name="shield" size={23} />
+                </span>
+                <span>
+                  RESERVE BLACK
+                  <small>SOVEREIGN MEMBER</small>
+                </span>
               </div>
-              <div className="reserve-medallion"><Icon name="star" size={30} /></div>
+              <div className="reserve-medallion">
+                <Icon name="star" size={30} />
+              </div>
               <div className="reserve-card-bottom">
-                <span>SV-9941<small>MEMBER ID</small></span>
-                <span>MEMBRIX<small>LIFETIME ACCESS</small></span>
+                <span>
+                  SV-9941
+                  <small>MEMBER ID</small>
+                </span>
+                <span>
+                  MEMBRIX
+                  <small>LIFETIME ACCESS</small>
+                </span>
               </div>
             </article>
           </div>
         </section>
 
-        <section className="content-section pricing-section section-anchor" id="pricing">
+        <section
+          className="content-section pricing-section section-anchor"
+          id="pricing"
+        >
           <div className="section-heading">
             <span className="eyebrow">TRANSPARENT TIERS</span>
             <h2>Tailored to <span>Your Lifestyle</span></h2>
-            <p>Flexible plans for individuals, frequent travelers, and private enterprises.</p>
+            <p>
+              Flexible plans for individuals, frequent travelers, and private
+              enterprises.
+            </p>
           </div>
+
           <div className="pricing-grid">
             {plans.map((plan) => (
-              <article className={`plan-card glass-card${plan.featured ? " plan-featured" : ""}`} key={plan.name}>
-                {plan.featured && <span className="popular-badge">MOST POPULAR</span>}
+              <article
+                className={`plan-card glass-card${plan.featured ? " plan-featured" : ""}`}
+                key={plan.name}
+              >
+                {plan.featured && (
+                  <span className="popular-badge">MOST POPULAR</span>
+                )}
+
                 <div className="plan-head">
                   <div>
                     <h3>{plan.name}</h3>
@@ -427,22 +526,44 @@ export default function Home() {
                   </div>
                   {plan.featured && <Icon name="star" size={18} />}
                 </div>
-                <div className="plan-price">{plan.price}<span> / month</span></div>
+
+                <div className="plan-price">
+                  {plan.price}<span> / month</span>
+                </div>
+
                 <ul className="plan-features">
                   {plan.features.map((feature) => (
-                    <li key={feature}><span className="check-icon"><Icon name="check" size={13} /></span>{feature}</li>
+                    <li key={feature}>
+                      <span className="check-icon">
+                        <Icon name="check" size={13} />
+                      </span>
+                      {feature}
+                    </li>
                   ))}
+
                   {plan.unavailable.map((feature) => (
-                    <li className="feature-disabled" key={feature}><span className="minus-icon">−</span>{feature}</li>
+                    <li className="feature-disabled" key={feature}>
+                      <span className="minus-icon">−</span>
+                      {feature}
+                    </li>
                   ))}
                 </ul>
-                <a className={`button plan-button${plan.featured ? " button-primary" : " button-glass"}`} href="#contact">
-                  {plan.action}<Icon name="arrow" size={15} />
+
+                <a
+                  className={`button plan-button${plan.featured ? " button-primary" : " button-glass"}`}
+                  href={`/signup?plan=${encodeURIComponent(plan.name)}`}
+                  >
+                  {plan.action}
+                  <Icon name="arrow" size={15} />
                 </a>
               </article>
             ))}
           </div>
-          <p className="pricing-note">Membership benefits and availability may vary by participating venue.</p>
+
+          <p className="pricing-note">
+            Membership benefits and availability may vary by participating
+            venue.
+          </p>
         </section>
 
         <section className="final-cta section-anchor" id="contact">
@@ -452,11 +573,21 @@ export default function Home() {
             Step into a more connected world of privileged access, a secure
             digital identity, and experiences worth remembering.
           </p>
+
           <div className="cta-actions">
-            <a className="button button-primary" href="#pricing">Get started today <Icon name="arrow" size={16} /></a>
-            <a className="button button-glass" href="#pricing"><Icon name="concierge" size={16} /> Explore membership options</a>
+            <a className="button button-primary" href="/signup">
+              Get started today <Icon name="arrow" size={16} />
+            </a>
+            <a className="button button-glass" href="/signup">
+              <Icon name="concierge" size={16} />
+              Explore membership options
+            </a>
           </div>
-          <div className="cta-note"><Icon name="check" size={14} /> Explore membership options with no commitment</div>
+
+          <div className="cta-note">
+            <Icon name="check" size={14} />
+            Explore membership options with no commitment
+          </div>
         </section>
 
         <footer className="site-footer">
@@ -470,8 +601,11 @@ export default function Home() {
                 A simpler way to manage digital membership, member benefits,
                 and access to experiences around the world.
               </p>
-              <span className="system-status"><span className="live-dot" /> SYSTEM OPERATIONAL</span>
+              <span className="system-status">
+                <span className="live-dot" /> SYSTEM OPERATIONAL
+              </span>
             </div>
+
             <div className="footer-column">
               <h3>Platform</h3>
               <a href="#features">Digital passes</a>
@@ -479,6 +613,7 @@ export default function Home() {
               <a href="#features">Member benefits</a>
               <a href="#features">Access management</a>
             </div>
+
             <div className="footer-column">
               <h3>Membership</h3>
               <a href="#pricing">Basic</a>
@@ -486,6 +621,7 @@ export default function Home() {
               <a href="#pricing">Enterprise</a>
               <a href="#membership">Reserve pass</a>
             </div>
+
             <div className="footer-column">
               <h3>Company</h3>
               <a href="#how-it-works">How it works</a>
@@ -493,15 +629,24 @@ export default function Home() {
               <a href="#contact">Member support</a>
               <a href="#contact">Privacy &amp; security</a>
             </div>
+
             <div className="footer-column footer-connect">
               <h3>Connect</h3>
-              <a href="#pricing">Explore membership options <Icon name="arrow" size={14} /></a>
+              <a href="/signup">
+                Explore membership options <Icon name="arrow" size={14} />
+              </a>
               <span>Global member network</span>
+              <a href="/login">Member login</a>
             </div>
           </div>
+
           <div className="footer-bottom">
             <span>© 2026 Membrix. All rights reserved.</span>
-            <div><a href="#contact">Privacy</a><a href="#contact">Terms</a><a href="#contact">Accessibility</a></div>
+            <div>
+              <a href="#contact">Privacy</a>
+              <a href="#contact">Terms</a>
+              <a href="#contact">Accessibility</a>
+            </div>
             <span className="footer-edition">MEMBERSHIP, REIMAGINED</span>
           </div>
         </footer>
