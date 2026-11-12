@@ -9,9 +9,12 @@ Built with **Next.js**, **Supabase**, and **Razorpay**.
 
 ---
 
-## Live Demo
 
-> 🎥 **Demo video:** _[Link will be added before M2 submission]_
+> 
+## 60-Second Project Demo
+
+[Watch MemberPass M2 Demo](https://drive.google.com/file/d/1_NyMCD04JBw4WbODeGtM583yu43bIiu7/view?usp=sharing)
+
 
 ---
 
