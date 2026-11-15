@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -43,8 +42,8 @@ export default function LoginPage() {
         display: "grid",
         placeItems: "center",
         padding: "24px",
-        background: "#080b12",
-        color: "#ffffff",
+        background: "#0c1310",
+        color: "#f3ede4",
       }}
     >
       <section
@@ -52,21 +51,39 @@ export default function LoginPage() {
           width: "100%",
           maxWidth: "430px",
           padding: "36px",
-          border: "1px solid #252b3a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: "18px",
-          background: "#111622",
+          background: "#111b15",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
         }}
       >
-        <h1 style={{ fontSize: "30px", marginBottom: "8px" }}>
-          Welcome back
-        </h1>
-
-        <p style={{ color: "#9ca3af", marginBottom: "28px" }}>
-          Log in to access your Membrix membership.
-        </p>
+        <div style={{ marginBottom: "24px" }}>
+          <p
+            style={{
+              color: "#7dd1a1",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+              marginBottom: "8px",
+            }}
+          >
+            THENDRAL YOGA LOFT
+          </p>
+          <h1 style={{ fontSize: "28px", fontWeight: 700, margin: "0 0 8px" }}>
+            Member Login
+          </h1>
+          <p style={{ color: "#8a968e", fontSize: "14px", margin: 0 }}>
+            Sign in to access your digital yoga studio pass and membership.
+          </p>
+        </div>
 
         <form onSubmit={handleLogin}>
-          <label htmlFor="email">Email address</label>
+          <label
+            htmlFor="email"
+            style={{ fontSize: "13px", color: "#b0baa2", fontWeight: 600 }}
+          >
+            Email address
+          </label>
           <input
             id="email"
             type="email"
@@ -77,7 +94,12 @@ export default function LoginPage() {
             style={inputStyle}
           />
 
-          <label htmlFor="password">Password</label>
+          <label
+            htmlFor="password"
+            style={{ fontSize: "13px", color: "#b0baa2", fontWeight: 600 }}
+          >
+            Password
+          </label>
           <input
             id="password"
             type="password"
@@ -93,13 +115,14 @@ export default function LoginPage() {
             disabled={loading}
             style={{
               width: "100%",
-              padding: "14px",
-              marginTop: "12px",
+              padding: "13px",
+              marginTop: "8px",
               border: "none",
               borderRadius: "9px",
-              background: "#8b7cff",
+              background: "#3d7a5a",
               color: "#ffffff",
               fontWeight: 700,
+              fontSize: "15px",
               cursor: loading ? "wait" : "pointer",
             }}
           >
@@ -108,14 +131,14 @@ export default function LoginPage() {
         </form>
 
         {message && (
-          <p role="alert" style={{ marginTop: "18px", color: "#fca5a5" }}>
+          <p role="alert" style={{ marginTop: "18px", color: "#fca5a5", fontSize: "14px" }}>
             {message}
           </p>
         )}
 
-        <p style={{ marginTop: "24px", color: "#9ca3af" }}>
+        <p style={{ marginTop: "24px", color: "#8a968e", fontSize: "14px" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/signup" style={{ color: "#a99cff" }}>
+          <Link href="/signup" style={{ color: "#7dd1a1", fontWeight: 600 }}>
             Sign up
           </Link>
         </p>
@@ -129,10 +152,11 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "12px",
   marginTop: "8px",
-  marginBottom: "20px",
-  border: "1px solid #343b4d",
+  marginBottom: "18px",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
   borderRadius: "8px",
-  background: "#0b101b",
-  color: "#ffffff",
+  background: "#080e0a",
+  color: "#f3ede4",
   outline: "none",
+  fontSize: "14px",
 };

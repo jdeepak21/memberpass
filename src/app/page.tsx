@@ -1,27 +1,37 @@
-
 type IconName =
-  | "wallet"
-  | "qr"
+  | "lotus"
+  | "sun"
+  | "feather"
   | "shield"
-  | "star"
-  | "sync"
-  | "sliders"
+  | "calendar"
+  | "spark"
   | "arrow"
   | "check"
-  | "spark"
-  | "concierge";
+  | "qr"
+  | "mapPin";
 
 function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
-    wallet: (
+    lotus: (
       <>
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="M3 9h18m-5 5h.01" />
+        <path d="M12 3c-1.5 3-3.5 6-3.5 9a3.5 3.5 0 0 0 7 0c0-3-2-6-3.5-9z" />
+        <path d="M12 12c-2.5-1-6-1-8 2 0 3.5 3 6 8 8" />
+        <path d="M12 12c2.5-1 6-1 8 2 0 3.5-3 6-8 8" />
+        <path d="M8.5 21a10 10 0 0 1-5.5-3" />
+        <path d="M15.5 21a10 10 0 0 0 5.5-3" />
       </>
     ),
-    qr: (
+    sun: (
       <>
-        <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zm4 0h2v6h-2zm-4 4h2v2h-2z" />
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14-1.41 1.41" />
+      </>
+    ),
+    feather: (
+      <>
+        <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+        <path d="M16 8 2 22" />
+        <path d="M17.5 15H9" />
       </>
     ),
     shield: (
@@ -30,32 +40,28 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
         <path d="m9 12 2 2 4-4" />
       </>
     ),
-    star: (
-      <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
-    ),
-    sync: (
+    calendar: (
       <>
-        <path d="M20 7v5h-5M4 17v-5h5" />
-        <path d="M5.6 9a7 7 0 0 1 11.6-2L20 12M4 12l2.8 5a7 7 0 0 0 11.6-2" />
+        <rect width="18" height="18" x="3" y="4" rx="2" />
+        <path d="M16 2v4M8 2v4M3 10h18" />
       </>
     ),
-    sliders: (
+    spark: (
       <>
-        <path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4" />
+        <path d="m12 3 1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3Z" />
       </>
     ),
     arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
     check: <path d="m5 12 4 4L19 6" />,
-    spark: (
+    qr: (
       <>
-        <path d="m12 3 1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3Z" />
-        <path d="m19 14 1.2 2.8L23 18l-2.8 1.2L19 22l-1.2-2.8L15 18l2.8-1.2L19 14Z" />
+        <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zm4 0h2v6h-2zm-4 4h2v2h-2z" />
       </>
     ),
-    concierge: (
+    mapPin: (
       <>
-        <path d="M4 14v-3a8 8 0 0 1 16 0v3" />
-        <path d="M4 14h3v6H6a2 2 0 0 1-2-2v-4Zm16 0h-3v6h1a2 2 0 0 0 2-2v-4Zm-8 7h2" />
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
       </>
     ),
   };
@@ -78,85 +84,79 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   );
 }
 
-const benefits: {
-  icon: IconName;
-  title: string;
-  description: string;
-  detail: string;
-}[] = [
+const studioFeatures = [
   {
-    icon: "wallet",
+    icon: "lotus" as IconName,
+    title: "Mindful Yoga Practice",
+    description:
+      "A serene and dedicated yoga studio space in Coimbatore for regular, guided practice.",
+    detail: "Studio Practice",
+  },
+  {
+    icon: "qr" as IconName,
     title: "Digital Membership Pass",
     description:
-      "Dynamic holographic passes saved directly into your mobile wallet, with secure access even when offline.",
-    detail: "Apple & Google Wallet ready",
+      "Quick and contactless entry verification via your personal member QR pass on any mobile device.",
+    detail: "QR Check-in",
   },
   {
-    icon: "qr",
-    title: "Instant QR Verification",
+    icon: "sun" as IconName,
+    title: "Structured Memberships",
     description:
-      "Rotating tokens help prevent screenshot fraud and make check-in quick at participating venues.",
-    detail: "Rotating anti-fraud token",
+      "Clear, transparent plans tailored for both introductory and committed yoga practitioners.",
+    detail: "Monthly Tiers",
   },
   {
-    icon: "shield",
-    title: "Secure Authentication",
+    icon: "feather" as IconName,
+    title: "Calm & Supportive Environment",
     description:
-      "Device-bound credentials and encrypted verification keep your digital membership protected.",
-    detail: "Device-level protection",
+      "A welcoming studio atmosphere designed to support your wellness and consistent routine.",
+    detail: "Welcoming Community",
   },
   {
-    icon: "star",
-    title: "Exclusive Member Benefits",
+    icon: "shield" as IconName,
+    title: "Secure Digital Records",
     description:
-      "Discover member-only experiences, priority reservations, and benefits offered by partner venues.",
-    detail: "Member privileges",
+      "Reliable verification and profile management powered by secure, authenticated membership accounts.",
+    detail: "Protected Access",
   },
   {
-    icon: "sync",
-    title: "Real-Time Access Sync",
+    icon: "calendar" as IconName,
+    title: "Member Portal",
     description:
-      "Keep your venue access, guest passes, and membership activity in sync wherever you travel.",
-    detail: "Connected access",
-  },
-  {
-    icon: "sliders",
-    title: "Smart Permissions Dashboard",
-    description:
-      "Review your access, manage guest permissions, and keep track of your membership in one place.",
-    detail: "Your access, in control",
+      "Manage your active membership, review your plan details, and view your pass anytime online.",
+    detail: "Member Dashboard",
   },
 ];
 
-const steps: {
-  number: string;
-  tag: string;
-  title: string;
-  description: string;
-}[] = [
+const howItWorks = [
   {
     number: "01",
-    tag: "IDENTITY CHECK",
-    title: "Create your account",
-    description: "Set up your profile and verify your identity to get started.",
+    tag: "ACCOUNT",
+    title: "Create Your Account",
+    description:
+      "Register with your name and email to access Thendral Yoga Loft membership services.",
   },
   {
     number: "02",
-    tag: "TIER SELECTION",
-    title: "Choose membership",
-    description: "Pick the membership that fits your lifestyle and access needs.",
+    tag: "PLAN",
+    title: "Select a Membership",
+    description:
+      "Choose from our Basic, Premium, or Enterprise membership plans.",
   },
   {
     number: "03",
-    tag: "MOBILE PROVISION",
-    title: "Get your digital pass",
-    description: "Add your secure membership pass to your mobile wallet.",
+    tag: "PAYMENT",
+    title: "Complete Online Payment",
+    description:
+      "Activate your membership through our secure Razorpay payment gateway.",
   },
   {
     number: "04",
-    tag: "INSTANT PRIVILEGES",
-    title: "Unlock exclusive access",
-    description: "Check in at participating venues and enjoy member benefits.",
+    tag: "STUDIO PASS",
+    title: "Receive Your Digital Pass",
+    description:
+      "Access your QR pass directly on your member dashboard for easy studio check-in.",
   },
 ];
 
@@ -164,493 +164,937 @@ const plans = [
   {
     name: "Basic",
     description:
-      "Essential digital access for local club exploration and city events.",
+      "Essential studio membership plan designed for foundational yoga practice.",
     price: "₹1,999",
     features: [
-      "Access to 50+ local partner venues",
-      "Instant QR dynamic verification",
-      "Native mobile pass",
+      "Eight yoga classes included",
+      "Digital QR membership pass",
+      "Online member portal access",
+      "Studio check-in verification",
     ],
     unavailable: [
-      "Apple / Google Wallet NFC tap",
-      "Companion guest passes",
+      "Unlimited monthly sessions",
+      "Priority workshop reservations",
     ],
-    action: "Get started with Basic",
+    action: "Select Basic Plan",
   },
   {
     name: "Premium",
     description:
-      "Complete global passport for frequent travelers and lifestyle enthusiasts.",
+      "Comprehensive membership plan for dedicated and regular yoga practitioners.",
     price: "₹5,999",
     features: [
-      "500+ global partner clubs & lounges",
-      "Apple & Google Wallet tap-and-go",
-      "Priority gate entrance",
-      "2 companion guest passes / month",
-      "Dedicated concierge priority line",
+      "Full monthly studio membership",
+      "Digital QR membership pass",
+      "Online member portal access",
+      "Studio check-in verification",
+      "Priority member support",
     ],
     unavailable: [],
-    action: "Join Premium",
+    action: "Select Premium Plan",
     featured: true,
   },
   {
     name: "Enterprise",
     description:
-      "Sovereign infrastructure for family offices, clubs, and executive teams.",
+      "Custom membership plan for private groups, teams, or organizational wellness.",
     price: "₹14,999",
     features: [
-      "Multi-seat pass management",
-      "Custom brand card styling",
-      "REST API & hardware SDK",
-      "Dedicated account support",
-      "Custom access control sync",
+      "Group membership coverage",
+      "Digital QR pass verification",
+      "Dedicated member portal support",
+      "Custom scheduling coordination",
     ],
     unavailable: [],
-    action: "Contact enterprise",
+    action: "Select Enterprise Plan",
   },
 ];
 
 export default function Home() {
   return (
-    <main>
-      <div className="ambient ambient-top" aria-hidden="true" />
-      <div className="ambient ambient-left" aria-hidden="true" />
-      <div className="ambient ambient-right" aria-hidden="true" />
-
-      <header className="site-header">
-        <div className="nav-shell">
-          <a className="brand" href="#home" aria-label="Membrix home">
-            <span className="brand-mark">M</span>
-            <span>Membrix</span>
+    <main
+      style={{
+        background: "#0c1310",
+        color: "#f3ede4",
+        minHeight: "100vh",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 40,
+          background: "rgba(12, 19, 16, 0.92)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1160px",
+            margin: "0 auto",
+            padding: "16px 24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "16px",
+          }}
+        >
+          <a
+            href="#home"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              color: "#f3ede4",
+              fontWeight: 700,
+              fontSize: "18px",
+              letterSpacing: "0.5px",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "34px",
+                height: "34px",
+                borderRadius: "8px",
+                background: "#2a4a39",
+                color: "#7dd1a1",
+              }}
+            >
+              <Icon name="lotus" size={20} />
+            </span>
+            <span>Thendral Yoga Loft</span>
           </a>
 
-          <nav className="main-nav" aria-label="Main navigation">
-            <a className="nav-active" href="#home">Home</a>
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How it works</a>
-            <a href="#membership">Membership</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#contact">Contact</a>
+          <nav
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "24px",
+              fontSize: "14px",
+            }}
+            className="hidden md:flex"
+          >
+            <a href="#about" style={{ color: "#a5b0a8" }}>
+              About
+            </a>
+            <a href="#features" style={{ color: "#a5b0a8" }}>
+              Features
+            </a>
+            <a href="#how-it-works" style={{ color: "#a5b0a8" }}>
+              How It Works
+            </a>
+            <a href="#pricing" style={{ color: "#a5b0a8" }}>
+              Memberships
+            </a>
+            <a href="#contact" style={{ color: "#a5b0a8" }}>
+              Contact
+            </a>
           </nav>
 
           <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <a className="button button-glass" href="/login">
+            <a
+              href="/login"
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#f3ede4",
+                fontSize: "14px",
+                fontWeight: 600,
+              }}
+            >
               Login
             </a>
-            <a className="button button-primary nav-cta" href="/signup">
-              Get started <Icon name="arrow" size={16} />
+            <a
+              href="/signup"
+              style={{
+                padding: "8px 18px",
+                borderRadius: "8px",
+                background: "#3d7a5a",
+                color: "#ffffff",
+                fontSize: "14px",
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              Get Started <Icon name="arrow" size={15} />
             </a>
           </div>
         </div>
       </header>
 
-      <div className="page-shell">
-        <section className="hero section-anchor" id="home">
-          <div className="hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" /> THE FUTURE OF DIGITAL MEMBERSHIP
-            </span>
-
-            <h1>
-              One Pass.
-              <br />
-              Unlimited
-              <br />
-              <span className="gradient-text">Possibilities.</span>
-            </h1>
-
-            <p className="hero-description">
-              Experience a smarter way to access exclusive memberships,
-              premium benefits, and unforgettable experiences across the
-              world&apos;s most discerning spaces.
-            </p>
-
-            <div className="hero-actions">
-              <a className="button button-primary" href="/signup">
-                Get your pass <Icon name="arrow" size={17} />
-              </a>
-              <a className="button button-glass" href="#features">
-                <span className="button-icon">
-                  <Icon name="spark" size={16} />
-                </span>
-                Explore features
-              </a>
-            </div>
-
-            <div className="social-proof">
-              <div className="avatar-stack" aria-hidden="true">
-                <span>AC</span><span>JM</span><span>SK</span><span>+</span>
-              </div>
-              <div className="rating">
-                <span className="stars" aria-label="5 out of 5 stars">
-                  ★★★★★
-                </span>
-                <span>Trusted by 10,000+ discerning members worldwide</span>
-              </div>
-            </div>
+      {/* Hero Welcome Section */}
+      <section
+        id="home"
+        style={{
+          maxWidth: "1160px",
+          margin: "0 auto",
+          padding: "70px 24px 60px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "48px",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "6px 14px",
+              borderRadius: "999px",
+              background: "rgba(61, 122, 90, 0.2)",
+              border: "1px solid rgba(125, 209, 161, 0.3)",
+              color: "#7dd1a1",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "1px",
+              marginBottom: "20px",
+            }}
+          >
+            <Icon name="mapPin" size={14} /> COIMBATORE, TAMIL NADU
           </div>
 
-          <div className="pass-stage" aria-label="Digital Membrix preview">
-            <div className="pass-glow" />
-            <div className="verification-chip">
-              <span className="live-dot" />
-              <span>
-                <strong>Instant Verification</strong>
-                <small>Validated in 0.12s</small>
-              </span>
-              <Icon name="shield" size={17} />
-            </div>
+          <h1
+            style={{
+              fontSize: "clamp(34px, 5vw, 52px)",
+              lineHeight: 1.15,
+              fontWeight: 700,
+              marginBottom: "20px",
+              color: "#f5f0ea",
+            }}
+          >
+            Welcome to <br />
+            <span style={{ color: "#7dd1a1" }}>Thendral Yoga Loft</span>
+          </h1>
 
-            <article className="membership-pass">
-              <div className="pass-sheen" />
-              <div className="pass-header">
-                <div className="pass-brand">
-                  <span className="pass-symbol">M</span>
-                  <span>
-                    Membrix
-                    <small>SOVEREIGN PROTOCOL</small>
-                  </span>
-                </div>
-                <span className="pass-status">
-                  <span className="live-dot" /> PREMIUM
-                </span>
-              </div>
+          <p
+            style={{
+              fontSize: "16px",
+              lineHeight: 1.7,
+              color: "#b0baa2",
+              marginBottom: "32px",
+              maxWidth: "520px",
+            }}
+          >
+            A calm and dedicated yoga studio in Coimbatore offering structured
+            membership plans, mindful practice, and instant digital QR passes
+            for effortless studio check-in.
+          </p>
 
-              <div className="pass-chip"><span /></div>
-              <p className="pass-code">ENC-SHA256&nbsp; • &nbsp;#0042-ALPHA</p>
-              <div className="pass-divider" />
-
-              <div className="pass-holder">
-                <div>
-                  <span className="micro-label">CARDHOLDER</span>
-                  <strong>Alexandra Chen</strong>
-                  <small>FOUNDER&apos;S TIER&nbsp; • &nbsp;#0042</small>
-                </div>
-                <div className="qr-preview" aria-label="QR pass preview">
-                  <Icon name="qr" size={35} />
-                </div>
-              </div>
-
-              <div className="pass-footer">
-                <span>
-                  <Icon name="shield" size={14} /> HARDWARE ENCLAVE ACTIVE
-                </span>
-                <span>EXP 12/28</span>
-              </div>
-            </article>
-
-            <div className="venue-toast">
-              <span className="venue-icon">
-                <Icon name="check" size={16} />
-              </span>
-              <span>
-                <strong>Aura Sky Club</strong>
-                <small>VIP Lounge Unlocked</small>
-              </span>
-              <span className="toast-check">
-                <Icon name="check" size={15} />
-              </span>
-            </div>
+          <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
+            <a
+              href="#pricing"
+              style={{
+                padding: "13px 26px",
+                borderRadius: "9px",
+                background: "#3d7a5a",
+                color: "#ffffff",
+                fontWeight: 700,
+                fontSize: "15px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              View Membership Plans <Icon name="arrow" size={16} />
+            </a>
+            <a
+              href="#about"
+              style={{
+                padding: "13px 22px",
+                borderRadius: "9px",
+                border: "1px solid rgba(255, 255, 255, 0.16)",
+                color: "#f3ede4",
+                fontSize: "15px",
+                fontWeight: 600,
+              }}
+            >
+              About the Studio
+            </a>
           </div>
-        </section>
+        </div>
 
-        <section className="trust-panel" aria-label="Membrix statistics">
-          <div className="metric">
-            <strong>10K<span>+</span></strong>
-            <b>Active Privileged Members</b>
-            <small>Across 42 international metropolises</small>
-          </div>
-          <div className="metric metric-gold">
-            <strong>500<span>+</span></strong>
-            <b>Exclusive Venues &amp; Partners</b>
-            <small>Luxury hotels, private clubs &amp; VIP venues</small>
-          </div>
-          <div className="metric">
-            <strong>99.9<span>%</span></strong>
-            <b>Secure Gate Reliability</b>
-            <small>Cryptographic verification at every entry</small>
-          </div>
-          <div className="alliance-row">
-            <span>ACCREDITED ACROSS GLOBAL LUXURY ALLIANCES</span>
-            <div>
-              <b>AURA SKY CLUB</b>
-              <b>L&apos;OBSERVATOIRE</b>
-              <b>VELOX PRIVÉ</b>
-              <b>NOVA EXPEDITION</b>
-              <b>THE FOUNDRY</b>
-            </div>
-          </div>
-        </section>
-
-        <section className="content-section section-anchor" id="features">
-          <div className="section-heading">
-            <span className="eyebrow">PLATFORM ARCHITECTURE</span>
-            <h2>Everything You Need. <span>One Digital Pass.</span></h2>
-            <p>
-              Designed for frictionless entry and unparalleled privilege
-              across private clubs, luxury venues, and digital enclaves.
-            </p>
-          </div>
-
-          <div className="benefit-grid">
-            {benefits.map((benefit) => (
-              <article className="benefit-card glass-card" key={benefit.title}>
-                <div className="feature-icon">
-                  <Icon name={benefit.icon} size={19} />
-                </div>
-                <h3>{benefit.title}</h3>
-                <p>{benefit.description}</p>
-                <div className="card-link">
-                  <span>{benefit.detail}</span>
-                  <Icon name="arrow" size={16} />
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section
-          className="content-section steps-section section-anchor"
-          id="how-it-works"
+        {/* Studio Pass Preview Graphic */}
+        <div
+          style={{
+            padding: "30px",
+            borderRadius: "20px",
+            background:
+              "linear-gradient(145deg, #13241b 0%, #0d1813 60%, #0a110d 100%)",
+            border: "1px solid rgba(125, 209, 161, 0.25)",
+            boxShadow: "0 20px 50px rgba(0, 0, 0, 0.4)",
+          }}
         >
-          <div className="section-heading">
-            <span className="eyebrow">SIMPLE ONBOARDING</span>
-            <h2>Your Membership, <span>Made Simple.</span></h2>
-            <p>
-              From invitation to your first venue entry in just a few steps.
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "24px",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  color: "#7dd1a1",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                }}
+              >
+                STUDIO MEMBERSHIP PASS
+              </p>
+              <h2 style={{ fontSize: "20px", margin: "4px 0 0" }}>
+                Thendral Yoga Loft
+              </h2>
+            </div>
+            <span
+              style={{
+                padding: "5px 12px",
+                borderRadius: "999px",
+                background: "rgba(74, 222, 128, 0.15)",
+                color: "#4ade80",
+                fontSize: "11px",
+                fontWeight: 700,
+              }}
+            >
+              ACTIVE MEMBER
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "20px",
+              alignItems: "center",
+              padding: "18px",
+              borderRadius: "12px",
+              background: "rgba(0, 0, 0, 0.3)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              marginBottom: "20px",
+            }}
+          >
+            <div
+              style={{
+                width: "90px",
+                height: "90px",
+                background: "#ffffff",
+                borderRadius: "10px",
+                display: "grid",
+                placeItems: "center",
+                color: "#0a110d",
+                flexShrink: 0,
+              }}
+            >
+              <Icon name="qr" size={60} />
+            </div>
+            <div>
+              <p style={{ color: "#8a968e", fontSize: "12px", margin: "0 0 4px" }}>
+                Location: Coimbatore, Tamil Nadu
+              </p>
+              <p style={{ fontSize: "14px", fontWeight: 600, margin: "0 0 6px" }}>
+                Digital Studio Check-in
+              </p>
+              <span style={{ color: "#7dd1a1", fontSize: "12px" }}>
+                Verified Member Access
+              </span>
+            </div>
+          </div>
+
+          <p style={{ color: "#8a968e", fontSize: "12px", margin: 0, lineHeight: 1.5 }}>
+            Generated immediately upon online payment verification. Present this
+            pass at the studio entry.
+          </p>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section
+        id="about"
+        style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+          padding: "80px 24px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1160px",
+            margin: "0 auto",
+          }}
+        >
+          <div style={{ maxWidth: "680px", marginBottom: "48px" }}>
+            <span
+              style={{
+                color: "#7dd1a1",
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "1.5px",
+              }}
+            >
+              ABOUT THE STUDIO
+            </span>
+            <h2
+              style={{
+                fontSize: "32px",
+                fontWeight: 700,
+                margin: "12px 0 16px",
+              }}
+            >
+              A Dedicated Space for Mindful Practice in Coimbatore
+            </h2>
+            <p style={{ color: "#b0baa2", lineHeight: 1.7, fontSize: "15px" }}>
+              Thendral Yoga Loft was created to bring structured, consistent yoga
+              practice to members in Coimbatore. We combine a peaceful,
+              supportive environment with a modern digital membership experience
+              so you can focus entirely on your practice and wellbeing.
             </p>
           </div>
 
-          <div className="steps-grid">
-            {steps.map((step, index) => (
-              <article className="step-card glass-card" key={step.number}>
-                <div className="step-top">
-                  <span className={`step-number step-${index + 1}`}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            <div
+              style={{
+                padding: "24px",
+                borderRadius: "14px",
+                background: "#111b15",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: "rgba(61, 122, 90, 0.25)",
+                  color: "#7dd1a1",
+                  display: "grid",
+                  placeItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <Icon name="lotus" size={20} />
+              </div>
+              <h3 style={{ fontSize: "18px", margin: "0 0 10px" }}>
+                Dedicated Yoga Space
+              </h3>
+              <p style={{ color: "#8a968e", fontSize: "14px", lineHeight: 1.6 }}>
+                A focused environment designed to help you stay present and
+                build a consistent, healthy yoga habit.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: "24px",
+                borderRadius: "14px",
+                background: "#111b15",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: "rgba(61, 122, 90, 0.25)",
+                  color: "#7dd1a1",
+                  display: "grid",
+                  placeItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <Icon name="qr" size={20} />
+              </div>
+              <h3 style={{ fontSize: "18px", margin: "0 0 10px" }}>
+                Contactless Digital Entry
+              </h3>
+              <p style={{ color: "#8a968e", fontSize: "14px", lineHeight: 1.6 }}>
+                Every activated membership includes a personal QR pass that can
+                be scanned at the studio without physical paperwork.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: "24px",
+                borderRadius: "14px",
+                background: "#111b15",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: "rgba(61, 122, 90, 0.25)",
+                  color: "#7dd1a1",
+                  display: "grid",
+                  placeItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <Icon name="shield" size={20} />
+              </div>
+              <h3 style={{ fontSize: "18px", margin: "0 0 10px" }}>
+                Transparent Memberships
+              </h3>
+              <p style={{ color: "#8a968e", fontSize: "14px", lineHeight: 1.6 }}>
+                Clear monthly plans with secure online payments and instant
+                membership status verification.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section
+        id="features"
+        style={{
+          maxWidth: "1160px",
+          margin: "0 auto",
+          padding: "80px 24px",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "48px" }}>
+          <span
+            style={{
+              color: "#7dd1a1",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+            }}
+          >
+            STUDIO EXPERIENCE
+          </span>
+          <h2 style={{ fontSize: "32px", fontWeight: 700, margin: "12px 0 0" }}>
+            Designed for Your Yoga Routine
+          </h2>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "24px",
+          }}
+        >
+          {studioFeatures.map((feat) => (
+            <div
+              key={feat.title}
+              style={{
+                padding: "24px",
+                borderRadius: "14px",
+                background: "#101813",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "38px",
+                  height: "38px",
+                  borderRadius: "9px",
+                  background: "rgba(61, 122, 90, 0.25)",
+                  color: "#7dd1a1",
+                  display: "grid",
+                  placeItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <Icon name={feat.icon} size={19} />
+              </div>
+              <h3 style={{ fontSize: "17px", margin: "0 0 8px" }}>
+                {feat.title}
+              </h3>
+              <p style={{ color: "#8a968e", fontSize: "14px", lineHeight: 1.6, margin: "0 0 16px" }}>
+                {feat.description}
+              </p>
+              <span
+                style={{
+                  color: "#7dd1a1",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                }}
+              >
+                {feat.detail} →
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section
+        id="how-it-works"
+        style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+          padding: "80px 24px",
+        }}
+      >
+        <div style={{ maxWidth: "1160px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <span
+              style={{
+                color: "#7dd1a1",
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "1.5px",
+              }}
+            >
+              MEMBERSHIP STEPS
+            </span>
+            <h2 style={{ fontSize: "32px", fontWeight: 700, margin: "12px 0 0" }}>
+              How It Works
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            {howItWorks.map((step) => (
+              <div
+                key={step.number}
+                style={{
+                  padding: "24px",
+                  borderRadius: "14px",
+                  background: "#111b15",
+                  border: "1px solid rgba(255, 255, 255, 0.06)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "monospace",
+                      fontSize: "20px",
+                      color: "#7dd1a1",
+                      fontWeight: 700,
+                    }}
+                  >
                     {step.number}
                   </span>
-                  {index < steps.length - 1 && <span className="step-line" />}
-                </div>
-                <span className="micro-label">{step.tag}</span>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="reserve-banner section-anchor" id="membership">
-          <div className="reserve-copy">
-            <span className="tier-badge">
-              <Icon name="star" size={13} /> SOVEREIGN PRIVILEGE TIER
-            </span>
-
-            <h2>The Black &amp; Gold<br />Reserve Pass</h2>
-
-            <p>
-              Engineered for members who expect exceptional access and
-              thoughtful, personal service wherever life takes them.
-            </p>
-
-            <div className="reserve-perks">
-              <span><Icon name="check" size={15} /> 24/7 dedicated concierge</span>
-              <span><Icon name="check" size={15} /> Unlimited global lounges</span>
-              <span><Icon name="check" size={15} /> Companion guest privileges</span>
-              <span><Icon name="check" size={15} /> Priority dining reservations</span>
-            </div>
-
-            <div className="reserve-actions">
-              <a className="button button-gold" href="/signup">
-                Explore premium <Icon name="arrow" size={16} />
-              </a>
-              <span>
-                <Icon name="shield" size={15} /> Subject to membership review
-              </span>
-            </div>
-          </div>
-
-          <div className="reserve-card-wrap">
-            <article className="reserve-card">
-              <div className="reserve-card-top">
-                <span className="reserve-emblem">
-                  <Icon name="shield" size={23} />
-                </span>
-                <span>
-                  RESERVE BLACK
-                  <small>SOVEREIGN MEMBER</small>
-                </span>
-              </div>
-              <div className="reserve-medallion">
-                <Icon name="star" size={30} />
-              </div>
-              <div className="reserve-card-bottom">
-                <span>
-                  SV-9941
-                  <small>MEMBER ID</small>
-                </span>
-                <span>
-                  MEMBRIX
-                  <small>LIFETIME ACCESS</small>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section
-          className="content-section pricing-section section-anchor"
-          id="pricing"
-        >
-          <div className="section-heading">
-            <span className="eyebrow">TRANSPARENT TIERS</span>
-            <h2>Tailored to <span>Your Lifestyle</span></h2>
-            <p>
-              Flexible plans for individuals, frequent travelers, and private
-              enterprises.
-            </p>
-          </div>
-
-          <div className="pricing-grid">
-            {plans.map((plan) => (
-              <article
-                className={`plan-card glass-card${plan.featured ? " plan-featured" : ""}`}
-                key={plan.name}
-              >
-                {plan.featured && (
-                  <span className="popular-badge">MOST POPULAR</span>
-                )}
-
-                <div className="plan-head">
-                  <div>
-                    <h3>{plan.name}</h3>
-                    <p>{plan.description}</p>
-                  </div>
-                  {plan.featured && <Icon name="star" size={18} />}
-                </div>
-
-                <div className="plan-price">
-                  {plan.price}<span> / month</span>
-                </div>
-
-                <ul className="plan-features">
-                  {plan.features.map((feature) => (
-                    <li key={feature}>
-                      <span className="check-icon">
-                        <Icon name="check" size={13} />
-                      </span>
-                      {feature}
-                    </li>
-                  ))}
-
-                  {plan.unavailable.map((feature) => (
-                    <li className="feature-disabled" key={feature}>
-                      <span className="minus-icon">−</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <a
-                  className={`button plan-button${plan.featured ? " button-primary" : " button-glass"}`}
-                  href={`/signup?plan=${encodeURIComponent(plan.name)}`}
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      letterSpacing: "1px",
+                      color: "#6b7a70",
+                      fontWeight: 700,
+                    }}
                   >
-                  {plan.action}
-                  <Icon name="arrow" size={15} />
-                </a>
-              </article>
+                    {step.tag}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: "17px", margin: "0 0 8px" }}>
+                  {step.title}
+                </h3>
+                <p style={{ color: "#8a968e", fontSize: "13px", lineHeight: 1.6, margin: 0 }}>
+                  {step.description}
+                </p>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <p className="pricing-note">
-            Membership benefits and availability may vary by participating
-            venue.
+      {/* Pricing / Membership Plans */}
+      <section
+        id="pricing"
+        style={{
+          maxWidth: "1160px",
+          margin: "0 auto",
+          padding: "80px 24px",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "48px" }}>
+          <span
+            style={{
+              color: "#7dd1a1",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+            }}
+          >
+            MEMBERSHIP PLANS
+          </span>
+          <h2 style={{ fontSize: "32px", fontWeight: 700, margin: "12px 0 10px" }}>
+            Choose Your Studio Membership
+          </h2>
+          <p style={{ color: "#8a968e", fontSize: "15px" }}>
+            Transparent monthly membership plans for Thendral Yoga Loft.
           </p>
-        </section>
+        </div>
 
-        <section className="final-cta section-anchor" id="contact">
-          <span className="eyebrow">GLOBAL ADMISSIONS OPEN</span>
-          <h2>Ready to Experience<br />Membership Differently?</h2>
-          <p>
-            Step into a more connected world of privileged access, a secure
-            digital identity, and experiences worth remembering.
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "28px",
+            alignItems: "stretch",
+          }}
+        >
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              style={{
+                padding: "32px",
+                borderRadius: "16px",
+                background: plan.featured ? "#13231a" : "#101813",
+                border: plan.featured
+                  ? "2px solid #3d7a5a"
+                  : "1px solid rgba(255, 255, 255, 0.08)",
+                display: "flex",
+                flexDirection: "column",
+                position: "relative",
+              }}
+            >
+              {plan.featured && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-12px",
+                    left: "24px",
+                    padding: "4px 12px",
+                    borderRadius: "999px",
+                    background: "#3d7a5a",
+                    color: "#ffffff",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    letterSpacing: "1px",
+                  }}
+                >
+                  RECOMMENDED
+                </span>
+              )}
+
+              <div style={{ marginBottom: "20px" }}>
+                <h3 style={{ fontSize: "22px", margin: "0 0 8px" }}>
+                  {plan.name}
+                </h3>
+                <p style={{ color: "#8a968e", fontSize: "13px", lineHeight: 1.5, margin: 0 }}>
+                  {plan.description}
+                </p>
+              </div>
+
+              <div style={{ marginBottom: "24px" }}>
+                <span style={{ fontSize: "32px", fontWeight: 700, color: "#f3ede4" }}>
+                  {plan.price}
+                </span>
+                <span style={{ color: "#8a968e", fontSize: "13px" }}> / month</span>
+              </div>
+
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "0 0 32px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                  flexGrow: 1,
+                }}
+              >
+                {plan.features.map((feature) => (
+                  <li
+                    key={feature}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "14px",
+                      color: "#d8dfd9",
+                    }}
+                  >
+                    <span style={{ color: "#4ade80" }}>
+                      <Icon name="check" size={15} />
+                    </span>
+                    {feature}
+                  </li>
+                ))}
+                {plan.unavailable.map((unav) => (
+                  <li
+                    key={unav}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "14px",
+                      color: "#6b7a70",
+                    }}
+                  >
+                    <span>−</span>
+                    {unav}
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href={`/signup?plan=${encodeURIComponent(plan.name)}`}
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  padding: "13px",
+                  borderRadius: "9px",
+                  background: plan.featured ? "#3d7a5a" : "rgba(255, 255, 255, 0.08)",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  border: plan.featured ? "none" : "1px solid rgba(255, 255, 255, 0.12)",
+                }}
+              >
+                {plan.action}
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Contact & Studio Location Section */}
+      <section
+        id="contact"
+        style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+          padding: "80px 24px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "760px",
+            margin: "0 auto",
+            textAlign: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "#7dd1a1",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+            }}
+          >
+            STUDIO LOCATION
+          </span>
+          <h2 style={{ fontSize: "30px", fontWeight: 700, margin: "12px 0 16px" }}>
+            Thendral Yoga Loft
+          </h2>
+          <p style={{ color: "#b0baa2", fontSize: "16px", lineHeight: 1.6, marginBottom: "28px" }}>
+            Coimbatore, Tamil Nadu
           </p>
 
-          <div className="cta-actions">
-            <a className="button button-primary" href="/signup">
-              Get started today <Icon name="arrow" size={16} />
+          <div
+            style={{
+              padding: "24px",
+              borderRadius: "14px",
+              background: "#101813",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              textAlign: "left",
+              marginBottom: "32px",
+            }}
+          >
+            <h3 style={{ fontSize: "16px", margin: "0 0 8px" }}>
+              Studio Visiting & Attendance Note
+            </h3>
+            <p style={{ color: "#8a968e", fontSize: "14px", lineHeight: 1.6, margin: 0 }}>
+              Full studio arrival guidance and class timings are provided upon
+              membership confirmation. Show your active digital QR pass at the
+              studio reception during entry.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+            <a
+              href="/signup"
+              style={{
+                padding: "12px 24px",
+                borderRadius: "8px",
+                background: "#3d7a5a",
+                color: "#ffffff",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+            >
+              Join the Studio
             </a>
-            <a className="button button-glass" href="/signup">
-              <Icon name="concierge" size={16} />
-              Explore membership options
+            <a
+              href="/login"
+              style={{
+                padding: "12px 24px",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#f3ede4",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+            >
+              Member Login
             </a>
           </div>
+        </div>
+      </section>
 
-          <div className="cta-note">
-            <Icon name="check" size={14} />
-            Explore membership options with no commitment
-          </div>
-        </section>
-
-        <footer className="site-footer">
-          <div className="footer-main">
-            <div className="footer-about">
-              <a className="brand" href="#home">
-                <span className="brand-mark">M</span>
-                <span>Membrix</span>
-              </a>
-              <p>
-                A simpler way to manage digital membership, member benefits,
-                and access to experiences around the world.
-              </p>
-              <span className="system-status">
-                <span className="live-dot" /> SYSTEM OPERATIONAL
-              </span>
-            </div>
-
-            <div className="footer-column">
-              <h3>Platform</h3>
-              <a href="#features">Digital passes</a>
-              <a href="#features">Secure verification</a>
-              <a href="#features">Member benefits</a>
-              <a href="#features">Access management</a>
-            </div>
-
-            <div className="footer-column">
-              <h3>Membership</h3>
-              <a href="#pricing">Basic</a>
-              <a href="#pricing">Premium</a>
-              <a href="#pricing">Enterprise</a>
-              <a href="#membership">Reserve pass</a>
-            </div>
-
-            <div className="footer-column">
-              <h3>Company</h3>
-              <a href="#how-it-works">How it works</a>
-              <a href="#contact">Contact</a>
-              <a href="#contact">Member support</a>
-              <a href="#contact">Privacy &amp; security</a>
-            </div>
-
-            <div className="footer-column footer-connect">
-              <h3>Connect</h3>
-              <a href="/signup">
-                Explore membership options <Icon name="arrow" size={14} />
-              </a>
-              <span>Global member network</span>
-              <a href="/login">Member login</a>
-            </div>
+      {/* Footer */}
+      <footer
+        style={{
+          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+          padding: "36px 24px",
+          background: "#080e0a",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1160px",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px",
+            color: "#6b7a70",
+            fontSize: "13px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ color: "#7dd1a1" }}>
+              <Icon name="lotus" size={16} />
+            </span>
+            <span style={{ color: "#a5b0a8", fontWeight: 600 }}>
+              Thendral Yoga Loft
+            </span>
+            <span>• Coimbatore, Tamil Nadu</span>
           </div>
 
-          <div className="footer-bottom">
-            <span>© 2026 Membrix. All rights reserved.</span>
-            <div>
-              <a href="#contact">Privacy</a>
-              <a href="#contact">Terms</a>
-              <a href="#contact">Accessibility</a>
-            </div>
-            <span className="footer-edition">MEMBERSHIP, REIMAGINED</span>
-          </div>
-        </footer>
-      </div>
+          <div>© 2026 Thendral Yoga Loft. All rights reserved.</div>
+        </div>
+      </footer>
     </main>
   );
 }

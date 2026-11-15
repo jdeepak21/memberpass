@@ -31,11 +31,12 @@ export default function MembershipPassCard({
   return (
     <div
       style={{
-        padding: "24px",
-        borderRadius: "16px",
-        background: "linear-gradient(135deg, #1a1040 0%, #0f1a2e 60%, #0b101b 100%)",
-        border: "1px solid #8b7cff55",
-        boxShadow: "0 0 40px #8b7cff22",
+        padding: "26px",
+        borderRadius: "18px",
+        background:
+          "linear-gradient(145deg, #13241b 0%, #0d1a13 60%, #09120e 100%)",
+        border: "1px solid rgba(125, 209, 161, 0.3)",
+        boxShadow: "0 20px 45px rgba(0, 0, 0, 0.45)",
         marginBottom: "24px",
       }}
     >
@@ -51,17 +52,19 @@ export default function MembershipPassCard({
         <div>
           <p
             style={{
-              color: "#a99cff",
+              color: "#7dd1a1",
               fontSize: "11px",
               fontWeight: 700,
-              letterSpacing: "2px",
-              marginBottom: "4px",
+              letterSpacing: "1.5px",
+              margin: "0 0 4px",
             }}
           >
-            MEMBRIX DIGITAL PASS
+            THENDRAL YOGA LOFT • DIGITAL PASS
           </p>
-          <h2 style={{ fontSize: "22px", margin: 0 }}>{fullName}</h2>
-          <p style={{ color: "#9ca3af", fontSize: "13px", marginTop: "4px" }}>
+          <h2 style={{ fontSize: "22px", margin: 0, fontWeight: 700 }}>
+            {fullName}
+          </h2>
+          <p style={{ color: "#8a968e", fontSize: "13px", marginTop: "4px" }}>
             {email}
           </p>
         </div>
@@ -71,8 +74,19 @@ export default function MembershipPassCard({
           style={{
             padding: "6px 14px",
             borderRadius: "999px",
-            background: plan === "Premium" ? "#7c3aed" : plan === "Enterprise" ? "#b45309" : "#1e3a5f",
-            color: "#ffffff",
+            background:
+              plan === "Premium"
+                ? "rgba(125, 209, 161, 0.25)"
+                : plan === "Enterprise"
+                ? "rgba(223, 184, 119, 0.2)"
+                : "rgba(61, 122, 90, 0.3)",
+            border:
+              plan === "Premium"
+                ? "1px solid #7dd1a1"
+                : plan === "Enterprise"
+                ? "1px solid #dfb877"
+                : "1px solid rgba(125, 209, 161, 0.3)",
+            color: plan === "Enterprise" ? "#dfb877" : "#7dd1a1",
             fontSize: "12px",
             fontWeight: 700,
             letterSpacing: "1px",
@@ -106,34 +120,70 @@ export default function MembershipPassCard({
             value={qrValue}
             size={130}
             bgColor="#ffffff"
-            fgColor="#0a0a0a"
+            fgColor="#0a110d"
             level="M"
           />
         </div>
 
         {/* Member details */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <div>
-            <p style={{ color: "#6b7280", fontSize: "11px", fontWeight: 600, letterSpacing: "1px", marginBottom: "2px" }}>
+            <p
+              style={{
+                color: "#6b7a70",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "1px",
+                marginBottom: "2px",
+              }}
+            >
               MEMBER ID
             </p>
-            <p style={{ fontFamily: "monospace", fontSize: "18px", letterSpacing: "2px", color: "#e5e7eb" }}>
+            <p
+              style={{
+                fontFamily: "monospace",
+                fontSize: "18px",
+                letterSpacing: "2px",
+                color: "#f3ede4",
+                margin: 0,
+              }}
+            >
               #{memberId}
             </p>
           </div>
 
           <div>
-            <p style={{ color: "#6b7280", fontSize: "11px", fontWeight: 600, letterSpacing: "1px", marginBottom: "2px" }}>
-              MEMBERSHIP
+            <p
+              style={{
+                color: "#6b7a70",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "1px",
+                marginBottom: "2px",
+              }}
+            >
+              MEMBERSHIP PLAN
             </p>
-            <p style={{ fontSize: "15px", color: "#e5e7eb" }}>{plan} Plan</p>
+            <p style={{ fontSize: "15px", color: "#f3ede4", margin: 0 }}>
+              {plan} Plan
+            </p>
           </div>
 
           <div>
-            <p style={{ color: "#6b7280", fontSize: "11px", fontWeight: 600, letterSpacing: "1px", marginBottom: "2px" }}>
+            <p
+              style={{
+                color: "#6b7a70",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "1px",
+                marginBottom: "2px",
+              }}
+            >
               ISSUED
             </p>
-            <p style={{ fontSize: "15px", color: "#e5e7eb" }}>{issuedDate}</p>
+            <p style={{ fontSize: "15px", color: "#f3ede4", margin: 0 }}>
+              {issuedDate}
+            </p>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -148,7 +198,7 @@ export default function MembershipPassCard({
               }}
             />
             <span style={{ color: "#4ade80", fontSize: "13px", fontWeight: 700 }}>
-              ACTIVE
+              ACTIVE PASS
             </span>
           </div>
         </div>
@@ -159,20 +209,28 @@ export default function MembershipPassCard({
         style={{
           marginTop: "20px",
           paddingTop: "16px",
-          borderTop: "1px solid #ffffff11",
+          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          gap: "8px",
         }}
       >
-        <span style={{ color: "#4b5563", fontSize: "11px" }}>
-          Scan QR code at Thendral Yoga Loft to verify membership
+        <span style={{ color: "#8a968e", fontSize: "12px" }}>
+          Scan at studio reception for entry verification
         </span>
-        <span style={{ color: "#4b5563", fontSize: "11px", fontFamily: "monospace" }}>
-          THENDRAL YOGA LOFT
+        <span
+          style={{
+            color: "#7dd1a1",
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "1px",
+          }}
+        >
+          COIMBATORE, TAMIL NADU
         </span>
       </div>
     </div>
   );
 }
-

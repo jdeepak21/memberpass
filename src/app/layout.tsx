@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Membrix | Digital Membership",
+  title: "Thendral Yoga Loft | Coimbatore",
   description:
-    "One digital pass for secure access to exclusive memberships, partner venues, and member benefits.",
+    "Digital membership and studio pass for Thendral Yoga Loft, Coimbatore.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
