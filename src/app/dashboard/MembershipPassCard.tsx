@@ -7,6 +7,7 @@ type Props = {
   fullName: string;
   plan: string;
   email: string;
+  status?: string;
 };
 
 export default function MembershipPassCard({
@@ -14,6 +15,7 @@ export default function MembershipPassCard({
   fullName,
   plan,
   email,
+  status = "active",
 }: Props) {
   // QR code payload — scanned by staff to verify membership.
   // Format: membrix:verify?uid=<id>&plan=<plan>
@@ -193,12 +195,18 @@ export default function MembershipPassCard({
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                background: "#4ade80",
+                background: status === "paused" ? "#fbbf24" : "#4ade80",
                 flexShrink: 0,
               }}
             />
-            <span style={{ color: "#4ade80", fontSize: "13px", fontWeight: 700 }}>
-              ACTIVE PASS
+            <span
+              style={{
+                color: status === "paused" ? "#fbbf24" : "#4ade80",
+                fontSize: "13px",
+                fontWeight: 700,
+              }}
+            >
+              {status === "paused" ? "PAUSED PASS" : "ACTIVE PASS"}
             </span>
           </div>
         </div>

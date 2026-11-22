@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types src/lib/qr/parsePass.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
+    "html5-qrcode": "^2.3.8",
     "next": "16.4.5",
     "qrcode.react": "^4.2.0",
     "razorpay": "^2.9.8",
