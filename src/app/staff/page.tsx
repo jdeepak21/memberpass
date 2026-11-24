@@ -1,3 +1,4 @@
+
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -15,12 +16,10 @@ async function StaffPageContent() {
     error: authError,
   } = await supabase.auth.getUser();
 
-  // If visitor is not authenticated, redirect to login
   if (authError || !user) {
     redirect("/login");
   }
 
-  // Fetch caller's assigned role
   const { data: roleRecord } = await supabase
     .from("user_roles")
     .select("role")
@@ -30,7 +29,6 @@ async function StaffPageContent() {
   const role = roleRecord?.role as "staff" | "admin" | undefined;
   const isAuthorized = role === "staff" || role === "admin";
 
-  // Access restricted screen for regular customers
   if (!isAuthorized) {
     return (
       <main
@@ -145,6 +143,31 @@ async function StaffPageContent() {
         padding: "24px 16px",
       }}
     >
+      <div
+        style={{
+          maxWidth: "900px",
+          margin: "0 auto 20px",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Link
+          href="/staff/re-engagement"
+          style={{
+            display: "inline-block",
+            padding: "11px 18px",
+            borderRadius: "8px",
+            background: "#3d7a5a",
+            color: "#ffffff",
+            fontWeight: 700,
+            fontSize: "14px",
+            textDecoration: "none",
+          }}
+        >
+          ✨ AI Re-engagement Assistant →
+        </Link>
+      </div>
+
       <StaffScannerClient staffEmail={user.email ?? "staff"} role={role} />
     </main>
   );
