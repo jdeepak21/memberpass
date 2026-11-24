@@ -1,9 +1,9 @@
+
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import PayNowButton from "./PayNowButton";
 import MembershipPassCard from "./MembershipPassCard";
 
@@ -29,24 +29,71 @@ async function DashboardContent() {
     .eq("id", user.id)
     .maybeSingle();
 
-  // Fetch user role (staff/admin check)
-  const { data: roleRecord } = await supabase
+  if (profileError) {
+    console.error("Dashboard profile error:", profileError);
+  }
+
+  // Fetch user role (staff/admin check).
+  const { data: roleRecord, error: roleError } = await supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", user.id)
     .maybeSingle();
 
+  if (roleError) {
+    console.error("Dashboard role error:", roleError);
+  }
+
   const isStaffOrAdmin =
     roleRecord?.role === "staff" || roleRecord?.role === "admin";
 
-  // Count verified attendance entries for this member
-  const { count: attendanceCount } = await supabase
+  // Count verified attendance entries for the current India calendar month.
+  const now = new Date();
+
+  const indiaParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(now);
+
+  const indiaYear = Number(
+    indiaParts.find((part) => part.type === "year")?.value
+  );
+
+  const indiaMonth = Number(
+    indiaParts.find((part) => part.type === "month")?.value
+  );
+
+  // India is UTC+05:30. Convert India month boundaries to UTC.
+  const indiaOffsetMs = 330 * 60 * 1000;
+
+  const monthStartUtc = new Date(
+    Date.UTC(indiaYear, indiaMonth - 1, 1) - indiaOffsetMs
+  ).toISOString();
+
+  const monthEndUtc = new Date(
+    Date.UTC(indiaYear, indiaMonth, 1) - indiaOffsetMs
+  ).toISOString();
+
+  const {
+    count: attendanceCount,
+    error: attendanceError,
+  } = await supabase
     .from("attendance_logs")
     .select("*", { count: "exact", head: true })
     .eq("member_id", user.id)
-    .eq("scan_result", "granted");
+    .eq("scan_result", "granted")
+    .gte("scanned_at", monthStartUtc)
+    .lt("scanned_at", monthEndUtc);
 
-  const classesAttended = attendanceCount || 0;
+  if (attendanceError) {
+    console.error("Dashboard attendance count error:", attendanceError);
+  }
+
+  const attendanceAvailable = !attendanceError;
+  const classesAttended = attendanceAvailable
+    ? attendanceCount ?? 0
+    : 0;
 
   // Logout server action.
   async function handleLogout() {
@@ -62,34 +109,38 @@ async function DashboardContent() {
     "use server";
 
     const supabase = await createClient();
+
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       redirect("/login");
     }
 
-    const { data: currentProfile } = await supabase
-      .from("profiles")
-      .select("membership_status")
-      .eq("id", user.id)
-      .maybeSingle();
+    // The database function checks the user's own membership
+    // and performs the pause/resume securely.
+    const { data, error: pauseError } = await supabase.rpc(
+      "toggle_membership_pause"
+    );
 
-    const currentStatus = currentProfile?.membership_status;
-    const newStatus =
-      currentStatus === "active"
-        ? "paused"
-        : currentStatus === "paused"
-        ? "active"
-        : null;
+    if (pauseError) {
+      console.error("Membership pause/resume error:", pauseError);
+      throw new Error(
+        "Membership status could not be updated. Please try again."
+      );
+    }
 
-    if (newStatus) {
-      const admin = createAdminClient();
-      await admin
-        .from("profiles")
-        .update({ membership_status: newStatus })
-        .eq("id", user.id);
+    const result = data as {
+      success?: boolean;
+      message?: string;
+    } | null;
+
+    if (!result?.success) {
+      throw new Error(
+        result?.message || "Membership status could not be updated."
+      );
     }
 
     redirect("/dashboard");
@@ -101,13 +152,19 @@ async function DashboardContent() {
   // Before payment, fall back to requested_plan (the plan they chose).
   const membershipPlan =
     profile?.membership_plan || profile?.requested_plan || "Basic";
+
   const membershipStatus = profile?.membership_status || "pending";
   const isActive = membershipStatus === "active";
   const isPaused = membershipStatus === "paused";
   const isBasic = membershipPlan === "Basic";
+
   const basicLimit = 8;
   const classesRemaining = Math.max(0, basicLimit - classesAttended);
-  const basicUsagePercent = Math.min(100, Math.round((classesAttended / basicLimit) * 100));
+
+  const basicUsagePercent = Math.min(
+    100,
+    Math.round((classesAttended / basicLimit) * 100)
+  );
 
   return (
     <main
@@ -129,7 +186,7 @@ async function DashboardContent() {
           boxShadow: "0 20px 45px rgba(0, 0, 0, 0.45)",
         }}
       >
-        {/* ── Staff Portal Banner (shown to staff/admins) ── */}
+        {/* Staff Portal Banner (shown to staff/admins) */}
         {isStaffOrAdmin && (
           <div
             style={{
@@ -156,8 +213,17 @@ async function DashboardContent() {
               >
                 STAFF / RECEPTION PORTAL
               </span>
-              <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#f3ede4" }}>
-                You have <strong>{roleRecord?.role?.toUpperCase()}</strong> access to the studio QR scanner.
+
+              <p
+                style={{
+                  margin: "2px 0 0",
+                  fontSize: "13px",
+                  color: "#f3ede4",
+                }}
+              >
+                You have{" "}
+                <strong>{roleRecord?.role?.toUpperCase()}</strong> access to
+                the studio QR scanner.
               </p>
             </div>
 
@@ -191,7 +257,13 @@ async function DashboardContent() {
             THENDRAL YOGA LOFT • MEMBER PORTAL
           </p>
 
-          <h1 style={{ fontSize: "30px", fontWeight: 700, margin: "0 0 8px" }}>
+          <h1
+            style={{
+              fontSize: "30px",
+              fontWeight: 700,
+              margin: "0 0 8px",
+            }}
+          >
             Welcome, {fullName}!
           </h1>
 
@@ -199,12 +271,12 @@ async function DashboardContent() {
             {isActive
               ? "Your yoga studio membership is active. Present your QR pass upon entry."
               : isPaused
-              ? "Your yoga membership is currently paused. Resume anytime to reactivate your pass."
-              : "Complete your online payment to activate your membership and studio pass."}
+                ? "Your yoga membership is currently paused. Resume anytime to reactivate your pass."
+                : "Complete your online payment to activate your membership and studio pass."}
           </p>
         </div>
 
-        {/* ── Digital membership pass (shown when active or paused) ── */}
+        {/* Digital membership pass (shown when active or paused) */}
         {(isActive || isPaused) && (
           <MembershipPassCard
             userId={user.id}
@@ -215,7 +287,7 @@ async function DashboardContent() {
           />
         )}
 
-        {/* ── 8-Class Allowance Tracker (for Basic Plan) ── */}
+        {/* 8-Class Allowance Tracker (for Basic Plan) */}
         {(isActive || isPaused) && (
           <div
             style={{
@@ -234,65 +306,109 @@ async function DashboardContent() {
                 marginBottom: "8px",
               }}
             >
-              <h2 style={{ fontSize: "15px", margin: 0, fontWeight: 700, color: "#f3ede4" }}>
-                {isBasic ? "Monthly Class Allowance (Basic Plan)" : "Studio Session Usage"}
+              <h2
+                style={{
+                  fontSize: "15px",
+                  margin: 0,
+                  fontWeight: 700,
+                  color: "#f3ede4",
+                }}
+              >
+                {isBasic
+                  ? "Monthly Class Allowance (Basic Plan)"
+                  : "Studio Session Usage"}
               </h2>
 
               <span
                 style={{
                   fontSize: "12px",
                   fontWeight: 700,
-                  color: isBasic && classesRemaining === 0 ? "#f87171" : "#7dd1a1",
+                  color:
+                    !attendanceAvailable
+                      ? "#fbbf24"
+                      : isBasic && classesRemaining === 0
+                        ? "#f87171"
+                        : "#7dd1a1",
                 }}
               >
-                {isBasic
-                  ? `${classesAttended} / ${basicLimit} Classes Used`
-                  : `${classesAttended} Sessions Attended`}
+                {!attendanceAvailable
+                  ? "Usage unavailable"
+                  : isBasic
+                    ? `${classesAttended} / ${basicLimit} Classes Used`
+                    : `${classesAttended} Sessions Attended`}
               </span>
             </div>
 
             {isBasic ? (
               <div>
-                <div
-                  style={{
-                    width: "100%",
-                    height: "8px",
-                    background: "rgba(255, 255, 255, 0.08)",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                    margin: "10px 0 8px",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${basicUsagePercent}%`,
-                      height: "100%",
-                      background:
-                        classesRemaining === 0
-                          ? "#f87171"
-                          : classesRemaining <= 2
-                          ? "#fbbf24"
-                          : "#4ade80",
-                      transition: "width 0.4s ease",
-                    }}
-                  />
-                </div>
+                {attendanceAvailable ? (
+                  <>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "8px",
+                        background: "rgba(255, 255, 255, 0.08)",
+                        borderRadius: "4px",
+                        overflow: "hidden",
+                        margin: "10px 0 8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${basicUsagePercent}%`,
+                          height: "100%",
+                          background:
+                            classesRemaining === 0
+                              ? "#f87171"
+                              : classesRemaining <= 2
+                                ? "#fbbf24"
+                                : "#4ade80",
+                          transition: "width 0.4s ease",
+                        }}
+                      />
+                    </div>
 
-                <p style={{ margin: 0, fontSize: "12px", color: "#8a968e" }}>
-                  {classesRemaining > 0
-                    ? `You have ${classesRemaining} class${classesRemaining === 1 ? "" : "es"} remaining in your monthly cycle.`
-                    : "You have completed all 8 classes for this billing cycle."}
-                </p>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "12px",
+                        color: "#8a968e",
+                      }}
+                    >
+                      {classesRemaining > 0
+                        ? `You have ${classesRemaining} class${classesRemaining === 1 ? "" : "es"} remaining this calendar month.`
+                        : "You have completed all 8 classes for this calendar month."}
+                    </p>
+                  </>
+                ) : (
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#fbbf24",
+                    }}
+                  >
+                    We could not load your attendance usage. Please try again
+                    later.
+                  </p>
+                )}
               </div>
             ) : (
-              <p style={{ margin: 0, fontSize: "12px", color: "#8a968e" }}>
-                Your {membershipPlan} plan includes unlimited studio classes at Thendral Yoga Loft.
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "12px",
+                  color: "#8a968e",
+                }}
+              >
+                Your {membershipPlan} plan includes unlimited studio classes
+                at Thendral Yoga Loft.
               </p>
             )}
           </div>
         )}
 
-        {/* ── Account details ── */}
+        {/* Account details */}
         <div
           style={{
             padding: "20px",
@@ -302,15 +418,23 @@ async function DashboardContent() {
             marginBottom: "20px",
           }}
         >
-          <p style={{ color: "#6b7a70", fontSize: "12px", fontWeight: 600, margin: "0 0 6px" }}>
+          <p
+            style={{
+              color: "#6b7a70",
+              fontSize: "12px",
+              fontWeight: 600,
+              margin: "0 0 6px",
+            }}
+          >
             REGISTERED EMAIL
           </p>
+
           <p style={{ margin: 0, fontSize: "15px", color: "#f3ede4" }}>
             {user.email}
           </p>
         </div>
 
-        {/* ── Membership status & actions ── */}
+        {/* Membership status & actions */}
         <div
           style={{
             padding: "20px",
@@ -320,7 +444,13 @@ async function DashboardContent() {
             marginBottom: "24px",
           }}
         >
-          <h2 style={{ fontSize: "18px", margin: "0 0 16px", fontWeight: 700 }}>
+          <h2
+            style={{
+              fontSize: "18px",
+              margin: "0 0 16px",
+              fontWeight: 700,
+            }}
+          >
             Membership Details
           </h2>
 
@@ -332,24 +462,51 @@ async function DashboardContent() {
             }}
           >
             <div>
-              <p style={{ color: "#6b7a70", fontSize: "12px", fontWeight: 600, margin: "0 0 4px" }}>
+              <p
+                style={{
+                  color: "#6b7a70",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  margin: "0 0 4px",
+                }}
+              >
                 PLAN
               </p>
-              <p style={{ margin: 0, fontSize: "16px", fontWeight: 600, color: "#f3ede4" }}>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#f3ede4",
+                }}
+              >
                 {membershipPlan} Plan
               </p>
             </div>
 
             <div>
-              <p style={{ color: "#6b7a70", fontSize: "12px", fontWeight: 600, margin: "0 0 4px" }}>
+              <p
+                style={{
+                  color: "#6b7a70",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  margin: "0 0 4px",
+                }}
+              >
                 STATUS
               </p>
+
               <p
                 style={{
                   margin: 0,
                   fontSize: "16px",
                   fontWeight: 700,
-                  color: isActive ? "#4ade80" : isPaused ? "#fbbf24" : "#fbbf24",
+                  color: isActive
+                    ? "#4ade80"
+                    : isPaused
+                      ? "#fbbf24"
+                      : "#fbbf24",
                 }}
               >
                 {membershipStatus.toUpperCase()}
@@ -358,8 +515,15 @@ async function DashboardContent() {
           </div>
 
           {profileError && (
-            <p style={{ color: "#fca5a5", marginTop: "12px", fontSize: "13px" }}>
-              We could not load your membership details. Please try again later.
+            <p
+              style={{
+                color: "#fca5a5",
+                marginTop: "12px",
+                fontSize: "13px",
+              }}
+            >
+              We could not load your membership details. Please try again
+              later.
             </p>
           )}
 
@@ -372,9 +536,16 @@ async function DashboardContent() {
                 borderTop: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
-              <p style={{ color: "#8a968e", fontSize: "14px", marginBottom: "14px" }}>
+              <p
+                style={{
+                  color: "#8a968e",
+                  fontSize: "14px",
+                  marginBottom: "14px",
+                }}
+              >
                 Activate your membership through secure Razorpay payment:
               </p>
+
               <PayNowButton email={user.email || ""} />
             </div>
           )}
@@ -394,10 +565,26 @@ async function DashboardContent() {
               }}
             >
               <div>
-                <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 600, color: "#f3ede4" }}>
-                  {isActive ? "Need to take a break?" : "Ready to return to yoga?"}
+                <p
+                  style={{
+                    margin: "0 0 4px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    color: "#f3ede4",
+                  }}
+                >
+                  {isActive
+                    ? "Need to take a break?"
+                    : "Ready to return to yoga?"}
                 </p>
-                <p style={{ margin: 0, fontSize: "12px", color: "#8a968e" }}>
+
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "12px",
+                    color: "#8a968e",
+                  }}
+                >
                   {isActive
                     ? "Temporarily pause your membership. Your pass will be inactive until resumed."
                     : "Your membership is paused. Click Resume to reactivate your studio pass."}
@@ -410,15 +597,21 @@ async function DashboardContent() {
                   style={{
                     padding: "9px 18px",
                     borderRadius: "8px",
-                    border: isPaused ? "1px solid #4ade80" : "1px solid rgba(251, 191, 36, 0.5)",
-                    background: isPaused ? "rgba(74, 222, 128, 0.15)" : "rgba(251, 191, 36, 0.15)",
+                    border: isPaused
+                      ? "1px solid #4ade80"
+                      : "1px solid rgba(251, 191, 36, 0.5)",
+                    background: isPaused
+                      ? "rgba(74, 222, 128, 0.15)"
+                      : "rgba(251, 191, 36, 0.15)",
                     color: isPaused ? "#4ade80" : "#fbbf24",
                     fontWeight: 700,
                     fontSize: "13px",
                     cursor: "pointer",
                   }}
                 >
-                  {isPaused ? "▶️ Resume Membership" : "⏸️ Pause Membership"}
+                  {isPaused
+                    ? "▶️ Resume Membership"
+                    : "⏸️ Pause Membership"}
                 </button>
               </form>
             </div>

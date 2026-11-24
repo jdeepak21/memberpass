@@ -1,6 +1,11 @@
+
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { parseMembershipQrPayload, SUPPORTED_PLANS, MembershipPlan } from "@/lib/qr/parsePass";
+import {
+  parseMembershipQrPayload,
+  SUPPORTED_PLANS,
+  MembershipPlan,
+} from "@/lib/qr/parsePass";
 
 export async function POST(request: Request) {
   try {
@@ -14,18 +19,36 @@ export async function POST(request: Request) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Authentication required. Please log in with your staff account." },
+        {
+          success: false,
+          status: "unauthorized",
+          error: "Authentication required. Please log in with your staff account.",
+        },
         { status: 401 }
       );
     }
 
-    // 2. Parse request body
+    // 2. Read request body
     const body = await request.json();
+
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        {
+          success: false,
+          status: "invalid_request",
+          error: "Invalid request body.",
+        },
+        { status: 400 }
+      );
+    }
+
     let memberId: string;
     let plan: MembershipPlan;
 
+    // 3. Parse QR code or manual member details
     if (typeof body.qrPayload === "string") {
       const parseResult = parseMembershipQrPayload(body.qrPayload);
+
       if (!parseResult.valid) {
         return NextResponse.json(
           {
@@ -37,11 +60,30 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+
       memberId = parseResult.data.memberId;
       plan = parseResult.data.plan;
-    } else if (typeof body.memberId === "string" && typeof body.plan === "string") {
+    } else if (
+      typeof body.memberId === "string" &&
+      typeof body.plan === "string"
+    ) {
       const trimmedId = body.memberId.trim().toLowerCase();
       const trimmedPlan = body.plan.trim() as MembershipPlan;
+
+      // Validate member UUID
+      const uuidPattern =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+      if (!uuidPattern.test(trimmedId)) {
+        return NextResponse.json(
+          {
+            success: false,
+            status: "invalid_member_id",
+            error: "Please enter a valid member ID.",
+          },
+          { status: 400 }
+        );
+      }
 
       if (!SUPPORTED_PLANS.includes(trimmedPlan)) {
         return NextResponse.json(
@@ -67,28 +109,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Check 8-Class Monthly Allowance for Basic Plan members
-    if (plan === "Basic") {
-      const { count: currentAttendanceCount } = await supabase
-        .from("attendance_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("member_id", memberId)
-        .eq("scan_result", "granted");
-
-      if ((currentAttendanceCount || 0) >= 8) {
-        return NextResponse.json({
-          success: false,
-          status: "classes_exceeded",
-          message:
-            "Monthly 8-class limit reached for Basic plan. Member can upgrade to Premium for unlimited classes.",
-          classesAttended: currentAttendanceCount,
-          verifiedBy: user.email,
-          timestamp: new Date().toISOString(),
-        });
-      }
-    }
-
-    // 4. Execute verify_member_pass RPC as the authenticated staff user
+    // 4. Verify pass through the database RPC
+    // The database will enforce staff permissions,
+    // membership status, duplicate scans, and monthly limits.
     const { data: rpcResult, error: rpcError } = await supabase.rpc(
       "verify_member_pass",
       {
@@ -98,47 +121,42 @@ export async function POST(request: Request) {
     );
 
     if (rpcError) {
-      if (rpcError.message.includes("Unauthorized") || rpcError.code === "42501") {
+      if (
+        rpcError.message.includes("Unauthorized") ||
+        rpcError.code === "42501"
+      ) {
         return NextResponse.json(
           {
             success: false,
             status: "unauthorized",
-            error: "Access denied. Only studio staff and administrators may verify member passes.",
+            error:
+              "Access denied. Only studio staff and administrators may verify member passes.",
           },
           { status: 403 }
         );
       }
 
       console.error("Pass verification RPC error:", rpcError);
+
       return NextResponse.json(
         {
           success: false,
           status: "error",
-          error: rpcError.message || "Failed to verify member pass.",
+          error: "Failed to verify member pass.",
         },
         { status: 500 }
       );
     }
 
-    // Count updated attendance if successful for Basic plan
-    let classesAttended: number | undefined;
-    if (rpcResult?.success && plan === "Basic") {
-      const { count: updatedCount } = await supabase
-        .from("attendance_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("member_id", memberId)
-        .eq("scan_result", "granted");
-      classesAttended = updatedCount || 1;
-    }
-
+    // 5. Return the database verification result
     return NextResponse.json({
       ...rpcResult,
-      classesAttended,
       verifiedBy: user.email,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Unexpected error in verify-pass API:", error);
+
     return NextResponse.json(
       {
         success: false,

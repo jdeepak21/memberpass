@@ -46,6 +46,7 @@ export async function GET(request: Request) {
 
       if (profileError) {
         console.error("Cron daily-check profile query error:", profileError);
+
         return NextResponse.json(
           { error: "Failed to query member profiles." },
           { status: 500 }
@@ -97,6 +98,7 @@ export async function GET(request: Request) {
 
       if (logError) {
         console.error("Cron daily-check attendance query error:", logError);
+
         return NextResponse.json(
           { error: "Failed to query attendance logs." },
           { status: 500 }
@@ -120,7 +122,7 @@ export async function GET(request: Request) {
       logFrom += PAGE_SIZE;
     }
 
-    // 4. Identify active members without a visit in over 14 days
+    // 4. Identify active members with no visit in over 14 days
     const inactiveActiveMembers = activeProfiles.filter(
       (p) => !activeMemberIdsWithRecentVisit.has(p.id)
     );
@@ -139,7 +141,7 @@ export async function GET(request: Request) {
       ).length,
     };
 
-    // 5. Return aggregate operational metrics only
+    // 5. Return aggregate metrics only
     return NextResponse.json({
       success: true,
       studio: "Thendral Yoga Loft, Coimbatore",
