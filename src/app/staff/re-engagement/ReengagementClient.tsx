@@ -1,7 +1,18 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type Member = {
+    id: string;
+    full_name: string;
+    membership_plan: string;
+};
+
+type MembersResponse = {
+    members?: Member[];
+    error?: string;
+};
 
 type DraftResponse = {
     success?: boolean;
@@ -12,17 +23,64 @@ type DraftResponse = {
 };
 
 export default function ReengagementClient() {
-    const [memberName, setMemberName] = useState("");
+    const [members, setMembers] = useState<Member[]>([]);
+    const [memberId, setMemberId] = useState("");
     const [daysInactive, setDaysInactive] = useState("14");
-    const [plan, setPlan] = useState("Basic");
     const [draft, setDraft] = useState("");
     const [isAiGenerated, setIsAiGenerated] = useState(false);
+    const [loadingMembers, setLoadingMembers] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [copied, setCopied] = useState(false);
 
-    async function generateDraft(event: React.FormEvent<HTMLFormElement>) {
+    useEffect(() => {
+        async function loadMembers() {
+            try {
+                const response = await fetch(
+                    "/api/ai/draft-reengagement",
+                    { method: "GET", cache: "no-store" }
+                );
+
+                const data: MembersResponse = await response.json();
+
+                if (!response.ok || !data.members) {
+                    throw new Error(
+                        data.error || "Could not load members."
+                    );
+                }
+
+                setMembers(data.members);
+
+                if (data.members.length > 0) {
+                    setMemberId(data.members[0].id);
+                }
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : "Could not load members."
+                );
+            } finally {
+                setLoadingMembers(false);
+            }
+        }
+
+        loadMembers();
+    }, []);
+
+    const selectedMember = members.find(
+        (member) => member.id === memberId
+    );
+
+    async function generateDraft(
+        event: React.FormEvent<HTMLFormElement>
+    ) {
         event.preventDefault();
+
+        if (!memberId) {
+            setError("Please select a member.");
+            return;
+        }
 
         setLoading(true);
         setError("");
@@ -30,22 +88,26 @@ export default function ReengagementClient() {
         setCopied(false);
 
         try {
-            const response = await fetch("/api/ai/draft-reengagement", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    memberName,
-                    daysInactive: Number(daysInactive),
-                    plan,
-                }),
-            });
+            const response = await fetch(
+                "/api/ai/draft-reengagement",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        memberId,
+                        daysInactive: Number(daysInactive),
+                    }),
+                }
+            );
 
             const data: DraftResponse = await response.json();
 
             if (!response.ok || !data.success || !data.draft) {
-                throw new Error(data.error || "Could not generate the message.");
+                throw new Error(
+                    data.error || "Could not generate the message."
+                );
             }
 
             setDraft(data.draft);
@@ -66,7 +128,9 @@ export default function ReengagementClient() {
             await navigator.clipboard.writeText(draft);
             setCopied(true);
         } catch {
-            setError("Could not copy the message. Please copy it manually.");
+            setError(
+                "Could not copy the message. Please copy it manually."
+            );
         }
     }
 
@@ -108,8 +172,8 @@ export default function ReengagementClient() {
                     </h1>
 
                     <p style={{ color: "#9ba69e", lineHeight: 1.6 }}>
-                        Create warm, personalised messages to welcome inactive members
-                        back to their yoga practice.
+                        Create warm, personalised messages to welcome
+                        inactive members back to their yoga practice.
                     </p>
                 </header>
 
@@ -123,17 +187,58 @@ export default function ReengagementClient() {
                     }}
                 >
                     <label style={{ display: "block", marginBottom: "8px" }}>
-                        Member name
+                        Select active member
                     </label>
 
-                    <input
-                        value={memberName}
-                        onChange={(event) => setMemberName(event.target.value)}
-                        placeholder="Enter member name"
-                        maxLength={80}
+                    <select
+                        value={memberId}
+                        onChange={(event) => setMemberId(event.target.value)}
+                        disabled={loadingMembers || members.length === 0}
                         required
                         style={inputStyle}
-                    />
+                    >
+                        {loadingMembers && (
+                            <option value="">Loading members...</option>
+                        )}
+
+                        {!loadingMembers && members.length === 0 && (
+                            <option value="">No active members found</option>
+                        )}
+
+                        {members.map((member) => (
+                            <option key={member.id} value={member.id}>
+                                {member.full_name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <label style={{ display: "block", margin: "18px 0 8px" }}>
+                        Verified membership plan
+                    </label>
+
+                    <div
+                        style={{
+                            ...inputStyle,
+                            color: "#7dd1a1",
+                            fontWeight: 700,
+                            minHeight: "20px",
+                        }}
+                    >
+                        {selectedMember
+                            ? selectedMember.membership_plan
+                            : "Select a member first"}
+                    </div>
+
+                    <p
+                        style={{
+                            color: "#89968d",
+                            fontSize: "12px",
+                            marginTop: "7px",
+                        }}
+                    >
+                        This plan is retrieved from the member&apos;s Supabase
+                        record. Staff cannot change it here.
+                    </p>
 
                     <label style={{ display: "block", margin: "18px 0 8px" }}>
                         Days inactive
@@ -144,28 +249,21 @@ export default function ReengagementClient() {
                         min="0"
                         max="3650"
                         value={daysInactive}
-                        onChange={(event) => setDaysInactive(event.target.value)}
+                        onChange={(event) =>
+                            setDaysInactive(event.target.value)
+                        }
                         required
                         style={inputStyle}
                     />
 
-                    <label style={{ display: "block", margin: "18px 0 8px" }}>
-                        Membership plan
-                    </label>
-
-                    <select
-                        value={plan}
-                        onChange={(event) => setPlan(event.target.value)}
-                        style={inputStyle}
-                    >
-                        <option value="Basic">Basic</option>
-                        <option value="Premium">Premium</option>
-                        <option value="Enterprise">Enterprise</option>
-                    </select>
-
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={
+                            loading ||
+                            loadingMembers ||
+                            members.length === 0 ||
+                            !memberId
+                        }
                         style={{
                             width: "100%",
                             marginTop: "24px",
@@ -179,7 +277,9 @@ export default function ReengagementClient() {
                             cursor: loading ? "wait" : "pointer",
                         }}
                     >
-                        {loading ? "Generating message..." : "✨ Generate AI Message"}
+                        {loading
+                            ? "Generating message..."
+                            : "✨ Generate AI Message"}
                     </button>
                 </form>
 
@@ -221,7 +321,9 @@ export default function ReengagementClient() {
                             </h2>
 
                             <span style={{ color: "#7dd1a1", fontSize: "12px" }}>
-                                {isAiGenerated ? "Gemini AI generated" : "Curated fallback"}
+                                {isAiGenerated
+                                    ? "Gemini AI generated"
+                                    : "Curated fallback"}
                             </span>
                         </div>
 
@@ -261,8 +363,8 @@ export default function ReengagementClient() {
                                 marginTop: "16px",
                             }}
                         >
-                            Review the message before sending it to the member. Sending
-                            through WhatsApp or email is not automated.
+                            Review the message before sending it. WhatsApp
+                            and email delivery are not automated.
                         </p>
                     </section>
                 )}
