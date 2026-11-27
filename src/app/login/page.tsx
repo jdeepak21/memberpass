@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -20,18 +21,39 @@ export default function LoginPage() {
 
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setMessage(error.message);
+    if (error || !data.user) {
+      setMessage(error?.message || "Login failed. Please try again.");
       setLoading(false);
       return;
     }
 
-    router.push("/dashboard");
+    const { data: roleRecord, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (roleError) {
+      setMessage(
+        "Login successful, but account access could not be checked. Please try again."
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (roleRecord?.role === "admin") {
+      router.push("/admin");
+    } else if (roleRecord?.role === "staff") {
+      router.push("/staff");
+    } else {
+      router.push("/dashboard");
+    }
+
     router.refresh();
   }
 
@@ -69,9 +91,17 @@ export default function LoginPage() {
           >
             THENDRAL YOGA LOFT
           </p>
-          <h1 style={{ fontSize: "28px", fontWeight: 700, margin: "0 0 8px" }}>
+
+          <h1
+            style={{
+              fontSize: "28px",
+              fontWeight: 700,
+              margin: "0 0 8px",
+            }}
+          >
             Member Login
           </h1>
+
           <p style={{ color: "#8a968e", fontSize: "14px", margin: 0 }}>
             Sign in to access your digital yoga studio pass and membership.
           </p>
@@ -80,10 +110,15 @@ export default function LoginPage() {
         <form onSubmit={handleLogin}>
           <label
             htmlFor="email"
-            style={{ fontSize: "13px", color: "#b0baa2", fontWeight: 600 }}
+            style={{
+              fontSize: "13px",
+              color: "#b0baa2",
+              fontWeight: 600,
+            }}
           >
             Email address
           </label>
+
           <input
             id="email"
             type="email"
@@ -96,10 +131,15 @@ export default function LoginPage() {
 
           <label
             htmlFor="password"
-            style={{ fontSize: "13px", color: "#b0baa2", fontWeight: 600 }}
+            style={{
+              fontSize: "13px",
+              color: "#b0baa2",
+              fontWeight: 600,
+            }}
           >
             Password
           </label>
+
           <input
             id="password"
             type="password"
@@ -124,6 +164,7 @@ export default function LoginPage() {
               fontWeight: 700,
               fontSize: "15px",
               cursor: loading ? "wait" : "pointer",
+              opacity: loading ? 0.7 : 1,
             }}
           >
             {loading ? "Logging in..." : "Log in"}
@@ -131,14 +172,30 @@ export default function LoginPage() {
         </form>
 
         {message && (
-          <p role="alert" style={{ marginTop: "18px", color: "#fca5a5", fontSize: "14px" }}>
+          <p
+            role="alert"
+            style={{
+              marginTop: "18px",
+              color: "#fca5a5",
+              fontSize: "14px",
+            }}
+          >
             {message}
           </p>
         )}
 
-        <p style={{ marginTop: "24px", color: "#8a968e", fontSize: "14px" }}>
+        <p
+          style={{
+            marginTop: "24px",
+            color: "#8a968e",
+            fontSize: "14px",
+          }}
+        >
           Don&apos;t have an account?{" "}
-          <Link href="/signup" style={{ color: "#7dd1a1", fontWeight: 600 }}>
+          <Link
+            href="/signup"
+            style={{ color: "#7dd1a1", fontWeight: 600 }}
+          >
             Sign up
           </Link>
         </p>

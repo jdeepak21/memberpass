@@ -47,53 +47,63 @@ async function DashboardContent() {
   const isStaffOrAdmin =
     roleRecord?.role === "staff" || roleRecord?.role === "admin";
 
-  // Count verified attendance entries for the current India calendar month.
-  const now = new Date();
+  // Determine the member's plan before loading attendance usage.
+  // Premium and Enterprise plans include unlimited classes, so only Basic
+  // members need an attendance count.
+  const membershipPlan =
+    profile?.membership_plan || profile?.requested_plan || "Basic";
+  const isBasic = membershipPlan === "Basic";
 
-  const indiaParts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "numeric",
-  }).formatToParts(now);
+  let attendanceAvailable = true;
+  let classesAttended = 0;
 
-  const indiaYear = Number(
-    indiaParts.find((part) => part.type === "year")?.value
-  );
+  if (isBasic) {
+    // Count verified attendance entries for the current India calendar month.
+    const now = new Date();
 
-  const indiaMonth = Number(
-    indiaParts.find((part) => part.type === "month")?.value
-  );
+    const indiaParts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "numeric",
+    }).formatToParts(now);
 
-  // India is UTC+05:30. Convert India month boundaries to UTC.
-  const indiaOffsetMs = 330 * 60 * 1000;
+    const indiaYear = Number(
+      indiaParts.find((part) => part.type === "year")?.value
+    );
 
-  const monthStartUtc = new Date(
-    Date.UTC(indiaYear, indiaMonth - 1, 1) - indiaOffsetMs
-  ).toISOString();
+    const indiaMonth = Number(
+      indiaParts.find((part) => part.type === "month")?.value
+    );
 
-  const monthEndUtc = new Date(
-    Date.UTC(indiaYear, indiaMonth, 1) - indiaOffsetMs
-  ).toISOString();
+    // India is UTC+05:30. Convert India month boundaries to UTC.
+    const indiaOffsetMs = 330 * 60 * 1000;
 
-  const {
-    count: attendanceCount,
-    error: attendanceError,
-  } = await supabase
-    .from("attendance_logs")
-    .select("*", { count: "exact", head: true })
-    .eq("member_id", user.id)
-    .eq("scan_result", "granted")
-    .gte("scanned_at", monthStartUtc)
-    .lt("scanned_at", monthEndUtc);
+    const monthStartUtc = new Date(
+      Date.UTC(indiaYear, indiaMonth - 1, 1) - indiaOffsetMs
+    ).toISOString();
 
-  if (attendanceError) {
-    console.error("Dashboard attendance count error:", attendanceError);
+    const monthEndUtc = new Date(
+      Date.UTC(indiaYear, indiaMonth, 1) - indiaOffsetMs
+    ).toISOString();
+
+    const {
+      count: attendanceCount,
+      error: attendanceError,
+    } = await supabase
+      .from("attendance_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("member_id", user.id)
+      .eq("status", "granted")
+      .gte("scanned_at", monthStartUtc)
+      .lt("scanned_at", monthEndUtc);
+
+    if (attendanceError) {
+      console.error("Dashboard attendance count error:", attendanceError);
+      attendanceAvailable = false;
+    } else {
+      classesAttended = attendanceCount ?? 0;
+    }
   }
-
-  const attendanceAvailable = !attendanceError;
-  const classesAttended = attendanceAvailable
-    ? attendanceCount ?? 0
-    : 0;
 
   // Logout server action.
   async function handleLogout() {
@@ -148,15 +158,9 @@ async function DashboardContent() {
 
   const fullName = user.user_metadata?.full_name || "Member";
 
-  // After payment, membership_plan holds the activated plan.
-  // Before payment, fall back to requested_plan (the plan they chose).
-  const membershipPlan =
-    profile?.membership_plan || profile?.requested_plan || "Basic";
-
   const membershipStatus = profile?.membership_status || "pending";
   const isActive = membershipStatus === "active";
   const isPaused = membershipStatus === "paused";
-  const isBasic = membershipPlan === "Basic";
 
   const basicLimit = 8;
   const classesRemaining = Math.max(0, basicLimit - classesAttended);
@@ -324,18 +328,18 @@ async function DashboardContent() {
                   fontSize: "12px",
                   fontWeight: 700,
                   color:
-                    !attendanceAvailable
+                    isBasic && !attendanceAvailable
                       ? "#fbbf24"
                       : isBasic && classesRemaining === 0
                         ? "#f87171"
                         : "#7dd1a1",
                 }}
               >
-                {!attendanceAvailable
-                  ? "Usage unavailable"
-                  : isBasic
+                {isBasic
+                  ? attendanceAvailable
                     ? `${classesAttended} / ${basicLimit} Classes Used`
-                    : `${classesAttended} Sessions Attended`}
+                    : "Usage unavailable"
+                  : "Unlimited Classes"}
               </span>
             </div>
 
