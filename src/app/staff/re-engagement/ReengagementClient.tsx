@@ -1,16 +1,24 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type Member = {
     id: string;
     full_name: string;
     membership_plan: string;
+    lastAttendanceAt: string | null;
+    daysInactive: number | null;
+    neverAttended: boolean;
 };
 
 type MembersResponse = {
-    members?: Member[];
+    success?: boolean;
+    daysChecked?: number;
+    inactiveMembers?: Member[];
+    neverAttendedMembers?: Member[];
+    totalInactive?: number;
+    totalNeverAttended?: number;
     error?: string;
 };
 
@@ -23,84 +31,96 @@ type DraftResponse = {
 };
 
 export default function ReengagementClient() {
-    const [members, setMembers] = useState<Member[]>([]);
-    const [memberId, setMemberId] = useState("");
-    const [daysInactive, setDaysInactive] = useState("14");
+    const [daysInactive, setDaysInactive] = useState("7");
+    const [inactiveMembers, setInactiveMembers] = useState<Member[]>([]);
+    const [neverAttendedMembers, setNeverAttendedMembers] = useState<Member[]>([]);
+    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+
     const [draft, setDraft] = useState("");
     const [isAiGenerated, setIsAiGenerated] = useState(false);
-    const [loadingMembers, setLoadingMembers] = useState(true);
-    const [loading, setLoading] = useState(false);
+
+    const [searching, setSearching] = useState(false);
+    const [generating, setGenerating] = useState(false);
+
     const [error, setError] = useState("");
     const [copied, setCopied] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
-    useEffect(() => {
-        async function loadMembers() {
-            try {
-                const response = await fetch(
-                    "/api/ai/draft-reengagement",
-                    { method: "GET", cache: "no-store" }
-                );
-
-                const data: MembersResponse = await response.json();
-
-                if (!response.ok || !data.members) {
-                    throw new Error(
-                        data.error || "Could not load members."
-                    );
-                }
-
-                setMembers(data.members);
-
-                if (data.members.length > 0) {
-                    setMemberId(data.members[0].id);
-                }
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : "Could not load members."
-                );
-            } finally {
-                setLoadingMembers(false);
-            }
-        }
-
-        loadMembers();
-    }, []);
-
-    const selectedMember = members.find(
-        (member) => member.id === memberId
-    );
-
-    async function generateDraft(
-        event: React.FormEvent<HTMLFormElement>
-    ) {
+    async function findInactiveMembers(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (!memberId) {
-            setError("Please select a member.");
+        const days = Number(daysInactive);
+
+        if (!Number.isInteger(days) || days < 1 || days > 3650) {
+            setError("Enter a whole number between 1 and 3650 days.");
             return;
         }
 
-        setLoading(true);
+        setSearching(true);
+        setError("");
+        setDraft("");
+        setSelectedMember(null);
+        setCopied(false);
+        setHasSearched(false);
+
+        try {
+            const response = await fetch(
+                `/api/ai/draft-reengagement?daysInactive=${encodeURIComponent(String(days))}`,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                }
+            );
+
+            const data: MembersResponse = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || "Could not find inactive members.");
+            }
+
+            setInactiveMembers(data.inactiveMembers || []);
+            setNeverAttendedMembers(data.neverAttendedMembers || []);
+            setHasSearched(true);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong. Please try again."
+            );
+        } finally {
+            setSearching(false);
+        }
+    }
+
+    function chooseMember(member: Member) {
+        setSelectedMember(member);
+        setDraft("");
+        setError("");
+        setCopied(false);
+    }
+
+    async function generateDraft() {
+        if (!selectedMember) {
+            setError("Please select a member first.");
+            return;
+        }
+
+        setGenerating(true);
         setError("");
         setDraft("");
         setCopied(false);
 
         try {
-            const response = await fetch(
-                "/api/ai/draft-reengagement",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        memberId,
-                        daysInactive: Number(daysInactive),
-                    }),
-                }
-            );
+            const response = await fetch("/api/ai/draft-reengagement", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    memberId: selectedMember.id,
+                    daysInactive: Number(daysInactive),
+                }),
+            });
 
             const data: DraftResponse = await response.json();
 
@@ -116,10 +136,10 @@ export default function ReengagementClient() {
             setError(
                 err instanceof Error
                     ? err.message
-                    : "Something went wrong. Please try again."
+                    : "Could not generate the message. Please try again."
             );
         } finally {
-            setLoading(false);
+            setGenerating(false);
         }
     }
 
@@ -127,11 +147,103 @@ export default function ReengagementClient() {
         try {
             await navigator.clipboard.writeText(draft);
             setCopied(true);
+            setError("");
         } catch {
-            setError(
-                "Could not copy the message. Please copy it manually."
-            );
+            setError("Could not copy the message. Please copy it manually.");
         }
+    }
+
+    function formatAttendanceDate(value: string | null) {
+        if (!value) return "No attendance record";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "Date unavailable";
+        }
+
+        return date.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+    }
+
+    function memberCard(member: Member, isNeverAttended = false) {
+        const isSelected = selectedMember?.id === member.id;
+
+        return (
+            <button
+                key={member.id}
+                type="button"
+                onClick={() => chooseMember(member)}
+                style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "17px",
+                    marginTop: "10px",
+                    borderRadius: "12px",
+                    border: isSelected
+                        ? "1px solid #7dd1a1"
+                        : "1px solid rgba(255,255,255,0.1)",
+                    background: isSelected ? "rgba(61,122,90,0.2)" : "#0c1510",
+                    color: "#f3ede4",
+                    cursor: "pointer",
+                }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: "8px",
+                    }}
+                >
+                    <strong>{member.full_name}</strong>
+                    <span style={{ color: "#7dd1a1", fontSize: "13px" }}>
+                        {member.membership_plan}
+                    </span>
+                </div>
+
+                <p
+                    style={{
+                        color: "#9ba69e",
+                        fontSize: "13px",
+                        margin: "9px 0 0",
+                    }}
+                >
+                    Last attendance:{" "}
+                    {isNeverAttended
+                        ? "Never attended"
+                        : formatAttendanceDate(member.lastAttendanceAt)}
+                </p>
+
+                {!isNeverAttended && member.daysInactive !== null && (
+                    <p
+                        style={{
+                            color: "#e4c58a",
+                            fontSize: "13px",
+                            margin: "6px 0 0",
+                        }}
+                    >
+                        Inactive for {member.daysInactive} days
+                    </p>
+                )}
+
+                {isSelected && (
+                    <p
+                        style={{
+                            color: "#7dd1a1",
+                            fontSize: "12px",
+                            margin: "10px 0 0",
+                            fontWeight: 700,
+                        }}
+                    >
+                        ✓ Selected
+                    </p>
+                )}
+            </button>
+        );
     }
 
     return (
@@ -172,13 +284,14 @@ export default function ReengagementClient() {
                     </h1>
 
                     <p style={{ color: "#9ba69e", lineHeight: 1.6 }}>
-                        Create warm, personalised messages to welcome
-                        inactive members back to their yoga practice.
+                        Find active members who have not attended recently
+                        and create warm, personalised messages to welcome
+                        them back to their yoga practice.
                     </p>
                 </header>
 
                 <form
-                    onSubmit={generateDraft}
+                    onSubmit={findInactiveMembers}
                     style={{
                         background: "#111b15",
                         border: "1px solid rgba(255,255,255,0.09)",
@@ -186,100 +299,54 @@ export default function ReengagementClient() {
                         padding: "24px",
                     }}
                 >
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Select active member
+                    <label
+                        htmlFor="daysInactive"
+                        style={{ display: "block", marginBottom: "8px" }}
+                    >
+                        Find members inactive for at least how many days?
                     </label>
 
-                    <select
-                        value={memberId}
-                        onChange={(event) => setMemberId(event.target.value)}
-                        disabled={loadingMembers || members.length === 0}
+                    <input
+                        id="daysInactive"
+                        type="number"
+                        min="1"
+                        max="3650"
+                        step="1"
+                        value={daysInactive}
+                        onChange={(event) => setDaysInactive(event.target.value)}
                         required
                         style={inputStyle}
-                    >
-                        {loadingMembers && (
-                            <option value="">Loading members...</option>
-                        )}
-
-                        {!loadingMembers && members.length === 0 && (
-                            <option value="">No active members found</option>
-                        )}
-
-                        {members.map((member) => (
-                            <option key={member.id} value={member.id}>
-                                {member.full_name}
-                            </option>
-                        ))}
-                    </select>
-
-                    <label style={{ display: "block", margin: "18px 0 8px" }}>
-                        Verified membership plan
-                    </label>
-
-                    <div
-                        style={{
-                            ...inputStyle,
-                            color: "#7dd1a1",
-                            fontWeight: 700,
-                            minHeight: "20px",
-                        }}
-                    >
-                        {selectedMember
-                            ? selectedMember.membership_plan
-                            : "Select a member first"}
-                    </div>
+                    />
 
                     <p
                         style={{
                             color: "#89968d",
                             fontSize: "12px",
-                            marginTop: "7px",
+                            lineHeight: 1.6,
+                            marginTop: "8px",
                         }}
                     >
-                        This plan is retrieved from the member&apos;s Supabase
-                        record. Staff cannot change it here.
+                        Example: Enter 7 to find active members whose last
+                        granted attendance was at least 7 days ago.
                     </p>
-
-                    <label style={{ display: "block", margin: "18px 0 8px" }}>
-                        Days inactive
-                    </label>
-
-                    <input
-                        type="number"
-                        min="0"
-                        max="3650"
-                        value={daysInactive}
-                        onChange={(event) =>
-                            setDaysInactive(event.target.value)
-                        }
-                        required
-                        style={inputStyle}
-                    />
 
                     <button
                         type="submit"
-                        disabled={
-                            loading ||
-                            loadingMembers ||
-                            members.length === 0 ||
-                            !memberId
-                        }
+                        disabled={searching}
                         style={{
                             width: "100%",
-                            marginTop: "24px",
+                            marginTop: "20px",
                             padding: "14px",
                             border: "none",
                             borderRadius: "9px",
-                            background: loading ? "#53665a" : "#3d7a5a",
+                            background: searching ? "#53665a" : "#3d7a5a",
                             color: "#ffffff",
                             fontWeight: 700,
                             fontSize: "15px",
-                            cursor: loading ? "wait" : "pointer",
+                            cursor: searching ? "wait" : "pointer",
                         }}
                     >
-                        {loading
-                            ? "Generating message..."
-                            : "✨ Generate AI Message"}
+                        {searching ? "Finding members..." : "Find Inactive Members"}
                     </button>
                 </form>
 
@@ -292,10 +359,133 @@ export default function ReengagementClient() {
                             borderRadius: "9px",
                             background: "rgba(248,113,113,0.1)",
                             color: "#fca5a5",
+                            lineHeight: 1.6,
                         }}
                     >
                         {error}
                     </p>
+                )}
+
+                {hasSearched && (
+                    <section style={{ marginTop: "28px" }}>
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+                                gap: "12px",
+                            }}
+                        >
+                            <div style={summaryCardStyle}>
+                                <strong style={summaryNumberStyle}>
+                                    {inactiveMembers.length}
+                                </strong>
+                                <span style={summaryLabelStyle}>
+                                    Inactive members
+                                </span>
+                            </div>
+
+                            <div style={summaryCardStyle}>
+                                <strong style={summaryNumberStyle}>
+                                    {neverAttendedMembers.length}
+                                </strong>
+                                <span style={summaryLabelStyle}>
+                                    Never attended
+                                </span>
+                            </div>
+                        </div>
+
+                        <h2 style={{ fontSize: "19px", margin: "28px 0 8px" }}>
+                            Inactive Members
+                        </h2>
+
+                        <p style={helperTextStyle}>
+                            These active members have not attended for at least{" "}
+                            {daysInactive} days.
+                        </p>
+
+                        {inactiveMembers.length === 0 ? (
+                            <p style={emptyStyle}>
+                                No inactive members found for this period.
+                            </p>
+                        ) : (
+                            inactiveMembers.map((member) => memberCard(member))
+                        )}
+
+                        <h2 style={{ fontSize: "19px", margin: "28px 0 8px" }}>
+                            Never Attended
+                        </h2>
+
+                        <p style={helperTextStyle}>
+                            These active members have no granted attendance
+                            records.
+                        </p>
+
+                        {neverAttendedMembers.length === 0 ? (
+                            <p style={emptyStyle}>
+                                No never-attended members found.
+                            </p>
+                        ) : (
+                            neverAttendedMembers.map((member) =>
+                                memberCard(member, true)
+                            )
+                        )}
+                    </section>
+                )}
+
+                {selectedMember && (
+                    <section
+                        style={{
+                            marginTop: "24px",
+                            padding: "24px",
+                            borderRadius: "16px",
+                            background: "#111b15",
+                            border: "1px solid rgba(125,209,161,0.25)",
+                        }}
+                    >
+                        <h2 style={{ margin: "0 0 14px", fontSize: "19px" }}>
+                            Selected Member
+                        </h2>
+
+                        <p style={{ margin: "7px 0" }}>
+                            <strong>Name:</strong> {selectedMember.full_name}
+                        </p>
+
+                        <p style={{ margin: "7px 0" }}>
+                            <strong>Plan:</strong>{" "}
+                            <span style={{ color: "#7dd1a1" }}>
+                                {selectedMember.membership_plan}
+                            </span>
+                        </p>
+
+                        <p style={{ margin: "7px 0", color: "#9ba69e" }}>
+                            <strong>Last attendance:</strong>{" "}
+                            {selectedMember.neverAttended
+                                ? "Never attended"
+                                : formatAttendanceDate(selectedMember.lastAttendanceAt)}
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={generateDraft}
+                            disabled={generating}
+                            style={{
+                                width: "100%",
+                                marginTop: "20px",
+                                padding: "14px",
+                                border: "none",
+                                borderRadius: "9px",
+                                background: generating ? "#53665a" : "#3d7a5a",
+                                color: "#ffffff",
+                                fontWeight: 700,
+                                fontSize: "15px",
+                                cursor: generating ? "wait" : "pointer",
+                            }}
+                        >
+                            {generating
+                                ? "Generating message..."
+                                : "✨ Generate AI Message"}
+                        </button>
+                    </section>
                 )}
 
                 {draft && (
@@ -364,7 +554,8 @@ export default function ReengagementClient() {
                             }}
                         >
                             Review the message before sending it. WhatsApp
-                            and email delivery are not automated.
+                            and email delivery are not automated; copy the
+                            message and send it manually.
                         </p>
                     </section>
                 )}
@@ -383,4 +574,39 @@ const inputStyle: React.CSSProperties = {
     fontSize: "14px",
     outline: "none",
     boxSizing: "border-box",
+};
+
+const summaryCardStyle: React.CSSProperties = {
+    background: "#111b15",
+    border: "1px solid rgba(255,255,255,0.09)",
+    borderRadius: "12px",
+    padding: "18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+};
+
+const summaryNumberStyle: React.CSSProperties = {
+    color: "#7dd1a1",
+    fontSize: "27px",
+};
+
+const summaryLabelStyle: React.CSSProperties = {
+    color: "#9ba69e",
+    fontSize: "13px",
+};
+
+const helperTextStyle: React.CSSProperties = {
+    color: "#89968d",
+    fontSize: "13px",
+    lineHeight: 1.6,
+    marginTop: "0",
+};
+
+const emptyStyle: React.CSSProperties = {
+    color: "#9ba69e",
+    background: "#111b15",
+    borderRadius: "10px",
+    padding: "16px",
+    fontSize: "14px",
 };
