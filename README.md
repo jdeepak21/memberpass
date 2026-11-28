@@ -9,13 +9,13 @@ Members can register, select a membership plan, make payments, access their digi
 **Live Website:** https://membrix-4a16mrpbd-deepakj21.vercel.app/  
 **GitHub Repository:** https://github.com/jdeepak21/memberpass
 
----
+--## Project Demo Video
 
-## Project Demo
+**Membrix – Final M4 Project Demonstration**
 
-[Watch the MemberPass M2 Demo](https://drive.google.com/file/d/1_NyMCD04JBw4WbODeGtM583yu43bIiu7/view?usp=sharing)
+[▶ Watch the Membrix Final Demo Video](https://drive.google.com/file/d/1R5ZEFVDxVHqxWCl8IBpA3OgRjZwiQEol/view?usp=drivesdk)
 
----
+The video demonstrates the Membrix membership process, payment flow, QR-based attendance verification, and an explanation of the AI re-engagement API code.
 
 ## Features
 
@@ -247,12 +247,19 @@ docs/
 Membrix is deployed using Vercel.
 
 **Live Application:**  
-https://membrix-4a16mrpbd-deepakj21.vercel.app/
+https://membrix-chi.vercel.app/
 
 **Source Code:**  
 https://github.com/jdeepak21/memberpass
 
 The GitHub Actions workflow runs quality checks, including secret scanning, dependency installation, linting, and production build verification.
+
+
+## Project Links
+
+- **Live Website:** https://membrix-chi.vercel.app/
+- **GitHub Repository:** https://github.com/jdeepak21/memberpass
+- **Final Demo Video:** https://drive.google.com/file/d/1R5ZEFVDxVHqxWCl8IBpA3OgRjZwiQEol/view?usp=drivesdk
 
 ---
 
