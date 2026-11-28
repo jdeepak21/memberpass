@@ -1,58 +1,94 @@
-# MemberPass — Thendral Yoga Loft
+# Membrix — Thendral Yoga Loft
 
 A digital membership management platform for **Thendral Yoga Loft, Coimbatore**.
 
-Members can register, choose a membership plan, pay online, access their digital QR pass, pause/resume their membership, and track monthly class usage. Studio reception staff scan and verify passes at studio entry using a dedicated scanner portal.
+Membrix helps yoga studios manage memberships, online payments, digital QR passes, attendance verification, and member engagement through a role-based dashboard.
 
-Built with **Next.js 16**, **TypeScript**, **Supabase**, and **Razorpay**.
+Members can register, select a membership plan, make payments, access their digital QR membership pass, pause or resume their membership, and track class usage. Staff can verify passes using a QR scanner, while administrators can access management tools and AI-assisted member re-engagement.
 
----
-
-## 60-Second Project Demo
-
-[Watch MemberPass M2 Demo](https://drive.google.com/file/d/1_NyMCD04JBw4WbODeGtM583yu43bIiu7/view?usp=sharing)
+**Live Website:** https://membrix-4a16mrpbd-deepakj21.vercel.app/  
+**GitHub Repository:** https://github.com/jdeepak21/memberpass
 
 ---
 
-## Test Login Credentials
+## Project Demo
 
-Use these credentials to explore the member app without signing up:
-
-| Field | Value |
-|---|---|
-| Email | `test@memberpass.dev` |
-| Password | `test1234` |
-
-> The test account has an **active Basic membership** so you can see the digital QR pass immediately after logging in.
+[Watch the MemberPass M2 Demo](https://drive.google.com/file/d/1_NyMCD04JBw4WbODeGtM583yu43bIiu7/view?usp=sharing)
 
 ---
 
 ## Features
 
-### Member Portal (`/dashboard`)
-- User registration and email confirmation
-- Membership plan selection (Basic / Premium / Enterprise)
-- Razorpay Test Mode payment integration
-- Server-side payment verification (HMAC-SHA256 signature check)
-- Digital QR membership pass displayed upon active status
-- **8-Class Monthly Usage Tracker**: Visual class progress bar for Basic plan members
-- **Membership Pause & Resume**: Members can pause their practice; the pass updates instantly to "PAUSED"
-- Razorpay webhook for asynchronous payment status updates
+### 1. Member Portal (`/dashboard`)
 
-### Staff & Reception Tools (`/staff`)
-- **Staff QR Scanner Portal**: Dedicated mobile-responsive camera scanner powered by `html5-qrcode`
-- **Manual / Barcode Scanner Mode**: Fallback input for USB barcode guns or manual member ID lookups
-- **Instant Audio-Visual Feedback**: Ascending chime on entry granted; warning buzz on denied/mismatch
-- **Debounce Window**: 15-minute duplicate-scan protection prevents double-tapping
-- **Session Audit Log**: Real-time log of recent scans with timestamps and result badges
+- Member registration and login.
+- Membership plan selection: Basic, Premium, and Enterprise.
+- Razorpay payment integration.
+- Server-side payment verification using HMAC-SHA256.
+- Digital QR membership pass.
+- Basic membership monthly class usage tracking.
+- Membership pause and resume functionality.
+- Membership status display.
 
-### Automation & AI Services
-- **Daily Cron Job** (`/api/cron/daily-check`): Scheduled check identifying practitioners inactive for >14 days and membership health metrics
-- **AI-Assisted Re-Engagement Drafts** (`/api/ai/draft-reengagement`): Warm, mindful messages tailored for yoga students with a resilient, non-blocking template fallback
+### 2. Staff Portal (`/staff`)
+
+- Dedicated staff scanner portal.
+- Camera-based QR scanning using `html5-qrcode`.
+- Manual or barcode scanner input.
+- Server-side membership pass verification.
+- Audio and visual scan feedback.
+- Duplicate-scan protection.
+- Attendance audit logs.
+
+### 3. Admin Dashboard (`/admin`)
+
+- Role-based login redirection.
+- Separate access for administrators, staff, and members.
+- Quick navigation to the staff scanner, AI re-engagement assistant, and member dashboard.
+
+### 4. AI Re-engagement Assistant (`/staff/re-engagement`)
+
+- Finds active members who have not attended for a specified number of days.
+- Uses granted attendance records to identify inactivity.
+- Separately identifies active members who have never attended.
+- Displays member name, membership plan, last attendance, and inactive duration.
+- Uses Google Gemini AI to generate personalised messages.
+- Includes fallback messages when AI generation is unavailable.
+- Supports manual review and copying of messages.
+- Does not automatically send WhatsApp or email messages.
+
+Only active memberships are included in the attendance-based re-engagement lists.
+
+### 5. Automation and Background Services
+
+- Daily cron endpoint: `/api/cron/daily-check`.
+- AI re-engagement API: `/api/ai/draft-reengagement`.
+- Razorpay payment creation, verification, and webhook endpoints.
+- Attendance verification API: `/api/staff/verify-pass`.
 
 ---
 
-## Getting Started (Local Development)
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 |
+| Language | TypeScript 5 |
+| UI Styling | Tailwind CSS v4 |
+| Authentication | Supabase Auth |
+| Database | Supabase PostgreSQL |
+| Access Control | Role-based access control |
+| Payments | Razorpay |
+| QR Generation | qrcode.react |
+| QR Scanning | html5-qrcode |
+| AI Integration | Google Gemini API |
+| Deployment | Vercel |
+| Version Control | Git and GitHub |
+| CI/CD | GitHub Actions |
+
+---
+
+## Getting Started
 
 ### 1. Clone the repository
 
@@ -67,40 +103,65 @@ cd memberpass
 npm install
 ```
 
-### 3. Set up environment variables
+### 3. Configure environment variables
 
-Create a `.env.local` file in the project root:
+Create a `.env.local` file in the project root.
+
+Add the following variable names with your own credentials:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
-CRON_SECRET=your_optional_cron_secret
-GEMINI_API_KEY=your_optional_gemini_api_key
+
+CRON_SECRET=your_cron_secret
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
-### 4. Run tests
+**Important:** Never upload `.env.local` or expose service-role keys, payment secrets, webhook secrets, or AI API keys in GitHub.
+
+### 4. Run automated tests
 
 ```bash
 npm test
 ```
 
-### 5. Run the development server
+The QR parser automated test suite contains 15 test cases.
+
+### 5. Run lint checks
+
+```bash
+npm run lint
+```
+
+### 6. Create a production build
+
+```bash
+npm run build
+```
+
+### 7. Start the development server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open:
+
+http://localhost:3000
 
 ---
 
 ## Razorpay Test Mode
 
-Payments use Razorpay Test Mode. Use these test card details:
+The application supports Razorpay Test Mode for payment testing.
+
+Example test card details:
 
 | Field | Value |
 |---|---|
@@ -109,64 +170,97 @@ Payments use Razorpay Test Mode. Use these test card details:
 | CVV | Any 3 digits |
 | OTP | `1234` |
 
+Use the appropriate Razorpay test environment when testing payments. Do not use real payment credentials in public documentation.
+
 ---
 
-## Tech Stack
+## Testing and Quality Checks
 
-| Layer | Technology |
+The following checks have been completed for the current M4 version:
+
+| Check | Result |
 |---|---|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS v4 |
-| Auth & Database | Supabase (PostgreSQL with RLS & RBAC) |
-| Payments | Razorpay SDK (Test Mode) |
-| QR Generation | `qrcode.react` |
-| QR Scanning | `html5-qrcode` |
-| Audio Feedback | Web Audio API |
+| QR parser unit tests | 15 tests passed |
+| ESLint | Passed |
+| TypeScript production build | Passed |
+| GitHub Actions CI | Passed |
+| Vercel deployment | Ready |
+| Attendance-based inactive-member detection | Tested |
+| Never-attended member detection | Tested |
+| Gemini personalised message generation | Tested |
+
+The QR parser tests are unit tests; they do not represent full end-to-end testing of every application feature.
+
+---
+
+## Lighthouse Performance Results
+
+Latest recorded Lighthouse scores for the live website:
+
+| Category | Score |
+|---|---:|
+| Performance | 91 |
+| Accessibility | 95 |
+| Best Practices | 100 |
+| SEO | 60 |
+
+The mobile Performance score achieved the project's target of 85 or above.
+
+See `docs/SPEED.png` for the Lighthouse evidence.
 
 ---
 
 ## Project Structure
 
-```
+```text
 src/
-├── app/
-│   ├── page.tsx                      # Landing page
-│   ├── login/page.tsx                # Member login
-│   ├── signup/page.tsx               # Member registration & plan selection
-│   ├── dashboard/
-│   │   ├── page.tsx                  # Protected member dashboard & 8-class tracker
-│   │   ├── MembershipPassCard.tsx    # Digital QR pass card (Active/Paused)
-│   │   └── PayNowButton.tsx          # Razorpay checkout trigger
-│   ├── staff/
-│   │   ├── page.tsx                  # Role-gated reception portal
-│   │   └── StaffScannerClient.tsx    # Camera & manual QR scanner interface
-│   ├── auth/route.ts                 # Email confirmation callback
-│   └── api/
-│       ├── payment/
-│       │   ├── create/route.ts       # Create Razorpay order
-│       │   ├── verify/route.ts       # Verify payment signature & activate
-│       │   └── webhook/route.ts      # Razorpay webhook handler
-│       ├── staff/
-│       │   └── verify-pass/route.ts  # Staff pass verification & 8-class check
-│       ├── cron/
-│       │   └── daily-check/route.ts  # Daily background health check
-│       └── ai/
-│           └── draft-reengagement/route.ts # AI re-engagement message draft
-└── lib/
-    ├── qr/
-    │   ├── parsePass.ts              # QR payload validator & parser
-    │   └── parsePass.test.mjs        # Automated test suite (15 test cases)
-    └── supabase/
-        ├── client.ts                 # Browser client
-        ├── server.ts                 # Server-side client
-        └── admin.ts                  # Service-role administrative client
+└── app/
+    ├── page.tsx
+    ├── login/
+    ├── signup/
+    ├── admin/
+    ├── dashboard/
+    ├── staff/
+    │   └── re-engagement/
+    ├── auth/
+    └── api/
+        ├── ai/
+        │   └── draft-reengagement/
+        ├── cron/
+        │   └── daily-check/
+        ├── payment/
+        │   ├── create/
+        │   ├── verify/
+        │   └── webhook/
+        └── staff/
+            └── verify-pass/
+
+docs/
+├── PLAN.pdf
+└── SPEED.png
 ```
+
+---
+
+## Deployment
+
+Membrix is deployed using Vercel.
+
+**Live Application:**  
+https://membrix-4a16mrpbd-deepakj21.vercel.app/
+
+**Source Code:**  
+https://github.com/jdeepak21/memberpass
+
+The GitHub Actions workflow runs quality checks, including secret scanning, dependency installation, linting, and production build verification.
 
 ---
 
 ## Internship Project
 
+**Project:** Membrix (originally MemberPass)  
 **Client:** Thendral Yoga Loft, Coimbatore  
 **Developer:** Deepak J  
-**Program:** Internship Project — 2026
+**Program:** Vizdale Full-Stack Developer Internship  
+**Year:** 2026
+
